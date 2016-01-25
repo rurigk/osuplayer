@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"> 
+	<title>Osu! Player</title>
+	<link rel="stylesheet" type="text/css" href="ui.css">
+	<script type="text/javascript" src='ui.js'></script>
+</head>
+<body class='bz'>
+	<div id='topbar'>
+		<img src="img/osu-logo.png" class='l logo' width='70'>
+		<div class='l osustat'>
+			<div class='osutitle'>Osu! Player</div>
+		</div>
+		<div class='r'>
+			<div class='bz l searchbx'>
+				<input id='searchbox' type='text' class='bz l searchbox'>
+				<div class='bz decoration l find' >&#xf002;</div>
+			</div>
+			<div class='bz button l reloadlib'>&#xF021;</div>
+			<div class='bz button l settingsop' >&#xf013;</div>
+			<!--div class='bz button l opendir' >&#xF115;</div>
+			<input id='opendir' type="file" nwdirectory /-->
+			<div class='bz tb-separator l'></div>
+
+			<div class='bz button l minwindow' >&#xF068;</div>
+			<div class='bz button l maxwindow' >&#xF067;</div>
+			<div class='bz button l closewindow' >&#xF00D;</div>
+		</div>
+	</div>
+	<div class='tabview'>
+		<div class='bz l tab nosel mainlistsh' sel='true'>Mainlist</div>
+		<div class='bz l tab nosel playlistsh' sel='false'>Playlists</div>
+	</div>
+	<div id='songslist' class='bz'></div>
+	<div id='playlists' class='bz'></div>
+	<div class='playbar bz nosel'>
+		<img src="img/avatar-guest.png" id='songimg' class='l'>
+		<div class='l songp-info'>
+			<div id='songtitle'>Nothing to play</div>
+			<div id='songauthor'>-</div>
+			<div id='trackbar'>
+			</div>
+		</div>
+		<div class='bz r controlbox'>
+			<div id='gosong' class='bz l ctbx'>&#xF06E;</div>
+			<div id='repeat' class='bz l ctbx'>&#xF079;</div>
+			<div id='prev' class='bz l ctbx'>&#xF04A;</div>
+			<div id='play' class='bz l ctbx'>&#xF04B;</div>
+			<div id='pause' class='bz l ctbx'>&#xF04C;</div>
+			<div id='next' class='bz l ctbx'>&#xF04E;</div>
+			<div id='shuffle' class='bz l ctbx'>&#xF074;</div>
+			<div id='sound' class='bz l ctbx'>&#xF028;</div>
+			<div id='soundbar'></div>
+		</div>
+	</div>
+	<div class='settings' id='settings'>
+		<div class='settingsbox bz nosel'>
+			<div class='closesettings r'>&#xF00D;</div>
+			<img src="img/pippi.jpg" class='pippi'>
+			<div class='st-sec'>
+				Osu songs path: <input id='osupath' type='text'><div id='savelocation'>&#xF00C;</div>
+			</div>
+			<div class='st-sec' style='padding-top: 4px;'>
+				Use songs cache: <input type='checkbox' id='usecache' name='usecache' checked>
+			</div>
+			<div class='st-sec'>
+				Find options:<br><br>
+				Title: <input type='checkbox' id='findtitle' checked>
+				Artist: <input type='checkbox' id='findartist' checked>
+				Creator: <input type='checkbox' id='findcreator'>
+			</div>
+			<div class='devbox'>
+				Developed by Rurigk
+				<br>
+				<span style='-webkit-user-select: text;cursor: text;'>rurigk@gmail.com</span>
+			</div>
+		</div>
+	</div>
+	<div id='loadbox' class='loadbox nosel'>
+		<div class='loadboxc'>
+			<img src="img/pippi.jpg">
+			<div style='margin-top: 10px;font-size: 2em;'>LOADING...</div>
+		</div>
+	</div>
+	<div id='addtopl'>
+		<div class='addtopl-title nosel'>Add to playlist</div>
+		<div id='plist-db' class='bz nosel'></div>
+	</div>
+</body>
+</html>
