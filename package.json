@@ -7,7 +7,7 @@
 		"icon": "appdata/osu.png",
 		"position": "center",
 		"toolbar": false,
-		"frame": true,
+		"frame": false,
 		"width": 1095,
 		"height": 660,
 		"min_width": 920,
