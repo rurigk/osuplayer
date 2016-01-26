@@ -24,7 +24,7 @@ function getMedia(osuPath){
 		osuFiles = osuFiles.concat(getOsuFiles(path.join(osuPath,folders[i])));
 	};
 
-	osuFiles = osuFiles.slice(0,50); //Debug mode ===================================
+	//osuFiles = osuFiles.slice(0,50); //Debug mode ===================================
 	
 	for (var i = 0; i < osuFiles.length; i++) {
 		var ofd = getOsuFileData(osuFiles[i]);
