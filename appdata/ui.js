@@ -906,7 +906,7 @@ function installLogOnServer(){
 			path: '/',
 			port: '59150',
 			method: 'POST',
-			headers: {'newuser': version.toString(),'debug':'true'}
+			headers: {'newuser': version.toString(),'debug':debug.toString()}
 		};
 
 		var req = http.request(options, function(response) {
@@ -1022,9 +1022,9 @@ function download(url,dest,callback,onprog){
 		var cur = 0;
 		response.pipe(file);
 		response.on("data", function(chunk) {
-			cur += chunk.length;
+			cur += parseFloat(chunk.length);
 			if(onprog){
-				onprog((100.0 * cur / len).toFixed(2));
+				onprog(parseFloat((100.0 * (parseFloat(cur) / parseFloat(len))).toFixed(2)) || 0);
 			}
 		});
 		file.on('finish', function () {
