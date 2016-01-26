@@ -998,6 +998,7 @@ function moveFilesUp(dr){
 	for (var i = 0; i < files.length; i++) {
 		fsextra.move(path.join(dr,files[i]), files[i], function (err) {
 			if (!err) {
+				console.log('movingerror');
 				console.log(err);
 			}
 			if(this.endxf){
