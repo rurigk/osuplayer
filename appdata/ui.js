@@ -43,7 +43,7 @@ var extract = require('extract-zip')
 var osu = require('./osuPlaylist.js');
 
 var debug = false;
-var version = 0.3;
+var version = 0.2;
 
 var cachesongs = {};
 
@@ -899,7 +899,7 @@ function installLogOnServer(){
 		Send an anonymous signal to register new installation to know the reach of users
 	*/
 	try{
-		fs.statSync('id0_2.ns');
+		fs.statSync('id0_3.ns');
 	}catch(e){
 		var options = {
 			host: 'maquivol.com',
@@ -975,8 +975,12 @@ function downloadAndUpdate(){
 	ui.uptodate.style.display = 'none';
 	ui.updatech.style.display = 'none';
 	ui.updatedl.style.display = 'block';
-	download(fileurl,'update.zip',function(){
-		extractAndReload()
+	download(fileurl,'update.zip',function(err){
+		if(!err){
+			extractAndReload()
+		}else{
+			console.log(err)
+		}
 	},function(prog){
 		ui.updatedl.innerHTML = "Downloading "+prog+"%";
 	})
@@ -987,9 +991,9 @@ function extractAndReload(){
 	})
 }
 function moveFilesUp(dr){
-	fs.rmrfSync('appdata');
-	fs.rmrfSync('node_modules');
-	fs.rmrfSync('package.json');
+	fsextra.rmrfSync('appdata');
+	fsextra.rmrfSync('node_modules');
+	fsextra.rmrfSync('package.json');
 	var files = fs.readdirSync(dr);
 	for (var i = 0; i < files.length; i++) {
 		fsextra.move(path.join(dr,files[i]), files[i], function (err) {
