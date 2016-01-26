@@ -942,7 +942,7 @@ function checkUpdates(){
 	ui.uptodate.style.display = 'none';
 	ui.updatech.style.display = 'block';
 		var options = {
-			host: 'localhost',
+			host: 'maquivol.com',
 			path: '/',
 			port: '59150',
 			method: 'POST',
