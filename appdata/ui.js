@@ -588,8 +588,8 @@ function loadSongsx(fr){
 	}
 	for(song in songs){
 		playlists.main[playlists.main.length] = song;
-		showPlaylist(current_playlist);	
 	}
+	showPlaylist(current_playlist);
 	loadPlaylists();
 	setTimeout(function(){
 		ui.loadbox.style.display = 'none';
