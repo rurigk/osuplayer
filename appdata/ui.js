@@ -34,10 +34,12 @@ Array.prototype.move = function (old_index, new_index) {
 };
 
 var fs=require('fs');
+var fsextra = require('fs.extra');
 var path = require('path');
 var http = require('http');
 var httpfr = require('follow-redirects').http;
 var gui = require('nw.gui');
+var extract = require('extract-zip')
 var osu = require('./osuPlaylist.js');
 
 var debug = false;
@@ -456,6 +458,9 @@ function clickManager(e){
 			othertabs[i].setAttribute('sel','false');
 		};
 		e.target.setAttribute('sel','true');
+	}
+	if(is(e,'.updatenow')){
+		downloadAndUpdate();
 	}
 }
 
@@ -971,10 +976,31 @@ function downloadAndUpdate(){
 	ui.updatech.style.display = 'none';
 	ui.updatedl.style.display = 'block';
 	download(fileurl,'update.zip',function(){
-		main_window.reloadDev();
+		extractAndReload()
 	},function(prog){
 		ui.updatedl.innerHTML = "Downloading "+prog+"%";
 	})
+}
+function extractAndReload(){
+	extract('update.zip', {dir: './'}, function (err) {
+		moveFilesUp('osuplayer-master');
+	})
+}
+function moveFilesUp(dr){
+	fs.rmrfSync('appdata');
+	fs.rmrfSync('node_modules');
+	fs.rmrfSync('package.json');
+	var files = fs.readdirSync(dr);
+	for (var i = 0; i < files.length; i++) {
+		fsextra.move(path.join(dr,files[i]), files[i], function (err) {
+			if (!err) {
+				console.log(err);
+			}
+			if(this.endxf){
+				this.main_window.reloadDev();
+			}
+		}.bind({endxf:(i == files.length-1),main_window:main_window}));
+	};
 }
 
 //Download function with progress

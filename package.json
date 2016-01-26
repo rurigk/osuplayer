@@ -6,7 +6,7 @@
 		"title": "Osu! Player",
 		"icon": "appdata/osu.png",
 		"position": "center",
-		"toolbar": true,
+		"toolbar": false,
 		"frame": true,
 		"width": 1095,
 		"height": 660,
