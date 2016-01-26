@@ -1001,6 +1001,8 @@ function moveFilesUp(dr){
 				console.log(err);
 			}
 			if(this.endxf){
+				fsextra.rmrfSync('osuplayer-master');
+				fs.unlink('update.zip');
 				this.main_window.reloadDev();
 			}
 		}.bind({endxf:(i == files.length-1),main_window:main_window}));
