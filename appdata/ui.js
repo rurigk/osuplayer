@@ -16,19 +16,37 @@ function atobU(str) {
 	return decodeURIComponent(escape(window.atob(str)));
 }
 
+Array.prototype.move = function (old_index, new_index) {
+    while (old_index < 0) {
+        old_index += this.length;
+    }
+    while (new_index < 0) {
+        new_index += this.length;
+    }
+    if (new_index >= this.length) {
+        var k = new_index - this.length;
+        while ((k--) + 1) {
+            this.push(undefined);
+        }
+    }
+    this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+    return this; // for testing purposes
+};
+
 var fs=require('fs');
 var path = require('path');
 var http = require('http');
+var httpfr = require('follow-redirects').http;
 var gui = require('nw.gui');
 var osu = require('./osuPlaylist.js');
 
-var debug = true;
+var debug = false;
+var version = 0.3;
 
 var cachesongs = {};
 
 var playlists = {
-	main : [],
-	playlist : []
+	main : []
 }
 var current_playlist_playing = "main";
 var current_playlist = "main";
@@ -93,10 +111,11 @@ var trackmv = false;
 window.addEventListener('load',function(){
 	loadElements();
 	installLogOnServer();
+	checkUpdates();
 	loadSongs();
 	window.oncontextmenu = function(e){
 		e.preventDefault();
-		clickManager(e);
+		//clickManager(e);
 		return false;
 	}
 	window.addEventListener("click",function(e){
@@ -176,6 +195,7 @@ window.addEventListener('load',function(){
 
 function updateThumbnails(){
 	ui.pldialog.style.display = 'none';
+	ui.snoptions.style.display = 'none';
 	var scroll = ui.songslist.scrollTop;
 	var hview = parseInt(getComputedStyle(ui.songslist, null).height);
 	for (var i = 0; i < ui.songslist.childNodes.length; i++) {
@@ -200,6 +220,12 @@ function clickManager(e){
 		var name = atobU(e.target.getAttribute('hash'));
 		playTrack(name);
 		current_playlist_playing = current_playlist;
+		if(current_playlist_playing == 'main'){
+			ui.currplbnt.style.display = 'none';
+		}else{
+			ui.currplbnt.style.display = 'block';
+		}
+		ui.currplbnt.innerHTML = current_playlist_playing;
 	}
 	if(is(e,'.opendir')){
 		ui.opendir.click();
@@ -312,10 +338,24 @@ function clickManager(e){
 			fpos -= 170;
 		}
 		ui.pldialog.style.top = fpos+"px";
-		ui.pldialog.style.right = "120px";
+		ui.pldialog.style.left = (e.target.offsetLeft-190)+"px";
 		ui.pldialog.style.display = 'block';
+		ui.pldialoglist.setAttribute('hash',closest(e,'.song').getAttribute('hash'));
 	}else{
 		ui.pldialog.style.display = 'none';
+	}
+	if(is(e,'.snoptions')){
+		var fpos = ((e.target.offsetTop+90)-ui.songslist.scrollTop);
+		var wdpos = parseInt(getComputedStyle(ui.songslist, null).height);
+		if(fpos+86 > wdpos+90){
+			fpos -= 56;
+		}
+		ui.snoptions.style.top = fpos+"px";
+		ui.snoptions.style.left = (e.target.offsetLeft-190)+"px";
+		ui.snoptions.style.display = 'block';
+		ui.snoptions.setAttribute('hash',closest(e,'.song').getAttribute('hash'));
+	}else{
+		ui.snoptions.style.display = 'none';
 	}
 	if(is(e,'.mainlistsh')){
 		current_playlist = 'main';
@@ -330,6 +370,92 @@ function clickManager(e){
 		var el = closest(e,'.playlist-info');
 		current_playlist = el.getAttribute('plname');
 		showPlaylist(current_playlist);
+	}
+	if(is(e,'.playlist-item')){
+		addToPlaylist(e.target.getAttribute('playlist'),atobU(ui.pldialoglist.getAttribute('hash')));
+	}
+	if(is(e,'.createplaylistsh')){
+		ui.newpl.style.display = 'flex';
+	}
+	if(is(e,'.closenpl')){
+		ui.newpl.style.display = 'none';
+	}
+	if(is(e,'.closeepl')){
+		ui.editpl.style.display = 'none';
+	}
+	if(is(e,'.closerpl')){
+		ui.removepl.style.display = 'none';
+	}
+	if(is(e,'#createpl')){
+		if(ui.newplinput.value != '' && ui.newplinput.value != 'main'){
+			newPlaylist(ui.newplinput.value);
+			ui.newpl.style.display = 'none';
+			savePlaylists();
+			showPlaylists();
+		}
+	}
+	if(is(e,'#savepl')){
+		if(ui.editplinput.value != '' && ui.editplinput.value != 'main' && typeof playlists[ui.editplinput.value] == 'undefined'){
+			renamePlaylist(ui.editplinput.getAttribute('plname'),ui.editplinput.value);
+			if(ui.editplinput.getAttribute('plname') == current_playlist_playing){
+				current_playlist_playing = ui.editplinput.value;
+				ui.currplbnt.innerHTML = current_playlist_playing;
+			}
+			ui.editpl.style.display = 'none';
+			savePlaylists();
+			showPlaylists();
+		}
+	}
+	if(is(e,'#removeplb')){
+		removePlaylist(ui.removeplb.getAttribute('plname'));
+		if(ui.removeplb.getAttribute('plname') == current_playlist_playing){
+			current_playlist_playing = 'main';
+			ui.currplbnt.style.display = 'none';
+		}
+		ui.removepl.style.display = 'none';
+		savePlaylists();
+		showPlaylists();
+	}
+	if(is(e,'#cplaylistsh')){
+		showPlaylist(current_playlist_playing);
+	}
+	if(is(e,'.bgimgpl')){
+		var plname = closest(e,'.playlist').getAttribute('plname')
+		if(playlists[plname].length > 0){
+			current_playlist_playing = plname;
+			if(current_playlist_playing == 'main'){
+				ui.currplbnt.style.display = 'none';
+			}else{
+				ui.currplbnt.style.display = 'block';
+			}
+			ui.currplbnt.innerHTML = current_playlist_playing;
+			playTrack(playlists[current_playlist_playing][0]);
+		}
+	}
+	if(is(e,'.removefrompl')){
+		removeFromPlaylist( current_playlist,atobU(ui.snoptions.getAttribute('hash')) );
+	}
+	if(is(e,'.editplaylist')){
+		ui.editplinput.setAttribute('plname',e.target.getAttribute('plname'));
+		ui.editplinput.value = e.target.getAttribute('plname');
+		ui.editpl.style.display = 'flex';
+	}
+	if(is(e,'.removeplaylist')){
+		ui.removeplb.setAttribute('plname',e.target.getAttribute('plname'));
+		ui.removepl.style.display = 'flex';
+	}
+	if(is(e,'.moveup')){
+		moveSongUp( current_playlist,atobU(ui.snoptions.getAttribute('hash')) );
+	}
+	if(is(e,'.movedown')){
+		moveSongDown( current_playlist,atobU(ui.snoptions.getAttribute('hash')) );
+	}
+	if(is(e,'.htab')){
+		var othertabs = document.querySelectorAll('.htab');
+		for (var i = 0; i < othertabs.length; i++) {
+			othertabs[i].setAttribute('sel','false');
+		};
+		e.target.setAttribute('sel','true');
 	}
 }
 
@@ -392,6 +518,26 @@ function loadElements(){
 
 	ui.pldialog = document.getElementById('addtopl');
 	ui.pldialoglist = document.getElementById('plist-db');
+
+	ui.snoptions = document.getElementById('sn-options');
+
+	ui.newpl = document.getElementById('newpl');
+	ui.newplinput = document.getElementById('newplname');
+
+	ui.editpl = document.getElementById('editpl');
+	ui.editplinput = document.getElementById('editplname');
+
+	ui.removepl = document.getElementById('removepl');
+	ui.removeplb = document.getElementById('removeplb');
+
+	ui.currplbnt = document.getElementById('cplaylistsh');
+
+	//update dialogs
+	ui.uptodate = document.getElementById('opud');
+	ui.updatech = document.getElementById('chfu');
+	ui.updatedl = document.getElementById('chfd');
+	ui.updateav = document.getElementById('unow');
+
 }
 function loadSongs(fr){
 	ui.loadbox.style.display = 'flex';
@@ -439,7 +585,7 @@ function loadSongsx(fr){
 		playlists.main[playlists.main.length] = song;
 		showPlaylist(current_playlist);	
 	}
-	playlists.playlist = playlists.main.slice(0,2);
+	loadPlaylists();
 	setTimeout(function(){
 		ui.loadbox.style.display = 'none';
 	},150)
@@ -467,14 +613,15 @@ function showPlaylist(name){
 		var cca =
 		"<div class='song nosel' hash='"+btoaU(songname)+"' titlesong='"+btoaU(cachesongs[songname].title)+"' artistsong='"+btoaU(cachesongs[songname].artist)+"' creatorsong='"+btoaU(cachesongs[songname].creator)+"'>"+
 		"	<div class='bgimg l' imgurl='"+bgpath+"' hash='"+btoaU(songname)+"'></div>"+
-		"	<div class='songinfo l'>"+
+		"	<div class='songinfo l "+(current_playlist != 'main' ? 'specialsn':'')+"'>"+
 		"		<div class='songtitle'>"+cachesongs[songname].title+"</div>"+
 		"		<div class='songartist'>"+cachesongs[songname].artist+"</div>"+
 		"		<div class='songmapper'>"+cachesongs[songname].creator+"</div>"+
 		"	</div>"+
 		"	<div class='r songoptions'>"+
-		"		<div class='addtoplaylist' mapid='"+cachesongs[songname].mapid+"'>&#xF067;</div>"+
-		"		<div class='maplink' mapid='"+cachesongs[songname].mapid+"'></div>"+
+		"		<div class='addtoplaylist'>&#xF067;</div>"+
+		(name == 'main'? '':"		<div class='snoptions'>&#xF0C9;</div>")+
+		//"		<div class='maplink' mapid='"+cachesongs[songname].mapid+"'></div>"+
 		"	</div>"+
 		"</div>";
 		cod += cca;
@@ -484,13 +631,51 @@ function showPlaylist(name){
 	ui.songslist.style.display = 'block';
 	updateThumbnails();
 }
+function getSongBg(songname){
+	if(cachesongs[songname].backgrounds.length > 0){
+		var basepath = cachesongs[songname].path;
+		var bgpath = path.join(basepath,cachesongs[songname].backgrounds[0]);
+		try{
+			fs.statSync(bgpath);
+			bgpath = bgpath.replace(/&/g, '&amp;');
+			bgpath = bgpath.replace(/"/g, '&quot;');
+			bgpath = bgpath.replace(/'/g, '&apos;');
+			bgpath = bgpath.replace(/#/g, '%23');
+			bgpath = bgpath.replace(/\\/g, '/');
+		}catch(e){
+			var bgpath = "img/osulogo-gray.svg";
+		}
+	}else{
+		var bgpath = "img/osulogo-gray.svg";
+	}
+	return bgpath;
+}
 function showPlaylists(){
 	var list = '';
 	for(name in playlists){
 		if(name != 'main'){
+			if(playlists[name].length == 2){
+				var bg_f = getSongBg(playlists[name][0]);
+				var bg_s = getSongBg(playlists[name][1]);
+				var exn = "bgimgpl2";
+				var bgquery = "url(\""+bg_f+"\"),url(\""+bg_s+"\")";
+			}else if(playlists[name].length > 2){
+				var bg_f = getSongBg(playlists[name][0]);
+				var bg_s = getSongBg(playlists[name][1]);
+				var bg_t = getSongBg(playlists[name][2]);
+				var exn = "bgimgpl3";
+				var bgquery = "url(\""+bg_f+"\"),url(\""+bg_s+"\"),url(\""+bg_t+"\")";
+			}else if(playlists[name].length > 0){
+				var bg_f = getSongBg(playlists[name][0]);
+				var exn = ""
+				var bgquery = "url(\""+bg_f+"\")";
+			}else{
+				var exn = ""
+				var bgquery = "url(\"img/osulogo-gray.svg\")";
+			}
 			list += 
 			"<div class='playlist nosel' plname='"+name+"'>"+
-			"	<div class='bgimg l'></div>"+
+			"	<div class='bgimgpl "+exn+" l' style='background-image:"+bgquery+";'></div>"+
 			"	<div class='playlist-info l' plname='"+name+"'>"+
 			"		<div class='playlist-name'>"+name+"</div>"+
 			"		<div class='playlist-tracks'>"+playlists[name].length+" tracks</div>"+
@@ -594,6 +779,70 @@ function updatePlaylistDialog(){
 	ui.pldialoglist.innerHTML = list;
 }
 
+function addToPlaylist(pl,song){
+	if(playlists[pl].indexOf(song) < 0){
+		playlists[pl].push(song);
+	}
+	savePlaylists();
+}
+
+function removeFromPlaylist(pl,song){
+	playlists[pl].splice(playlists[pl].indexOf(song),1);
+	savePlaylists();
+	showPlaylist(current_playlist);
+}
+function moveSongUp(pl,song){
+	var index = playlists[pl].indexOf(song);
+	if(index > 0){
+		playlists[pl].move(index,index-1);
+	}
+	savePlaylists();
+	showPlaylist(current_playlist);
+}
+function moveSongDown(pl,song){
+	var index = playlists[pl].indexOf(song);
+	if(index < playlists[pl].length-1){
+		playlists[pl].move(index,index+1);
+	}
+	savePlaylists();
+	showPlaylist(current_playlist);
+}
+
+function sortPlaylists(){
+	var curr = JSON.parse(JSON.stringify(playlists));
+	playlists = {};
+	Object.keys(curr).sort(sortAlphaNum).forEach(function(key) {
+		playlists[key] = curr[key];
+	});
+}
+function newPlaylist(name){
+	playlists[name] = [];
+	sortPlaylists();
+}
+
+function renamePlaylist(cpl,npl){
+	newPlaylist(npl);
+	playlists[npl] = playlists[cpl].slice(0,playlists[cpl].length);
+	delete playlists[cpl];
+	sortPlaylists();
+}
+function removePlaylist(name){
+	delete playlists[name];
+}
+function loadPlaylists(){
+	try{
+		var plloaded = JSON.parse(fs.readFileSync('playlists',{encoding:'utf8'}));
+		for (var attrname in plloaded) { playlists[attrname] = plloaded[attrname]; }
+		sortPlaylists();
+	}catch(e){}
+}
+function savePlaylists(){
+	var plc = JSON.parse(JSON.stringify(playlists));
+	delete plc.main;
+	var ts = JSON.stringify(plc);
+	fs.writeFile('playlists', ts, 'utf8');
+}
+
 function search(w){
 	if(w != '' && !scrollflag){
 		dscroll = ui.songslist.scrollTop;
@@ -637,6 +886,9 @@ function saveCache(){}
 function loadCache(){}
 
 function installLogOnServer(){
+	if(debug){
+		return false;
+	}
 	/*
 		Envia una señal anonima para registrar nuevas instalaciones para saber el alcance de usuarios
 		Send an anonymous signal to register new installation to know the reach of users
@@ -649,7 +901,7 @@ function installLogOnServer(){
 			path: '/',
 			port: '59150',
 			method: 'POST',
-			headers: {'newuser': '0.2','debug':'true'}
+			headers: {'newuser': version.toString(),'debug':'true'}
 		};
 
 		var req = http.request(options, function(response) {
@@ -661,7 +913,7 @@ function installLogOnServer(){
 
 			response.on('end', function () {
 				if(str == "reg"){
-					fs.writeFile('id0_2.ns', 
+					fs.writeFile('id0_3.ns', 
 						'This file is created after install to know if is new installation, please no delete this file.'+
 						'Este archivo se crea después de la instalación para saber si es nueva instalación, por favor, no elimine este archivo'
 						, 'utf8');
@@ -671,5 +923,112 @@ function installLogOnServer(){
 		//This is the data we are posting, it needs to be a string or a buffer
 		req.write('');
 		req.end();
+	}
+}
+
+function checkUpdates(){
+	if(debug){
+		return false;
+	}
+	/*
+		Consulta al servidor de nueva version
+	*/
+	ui.updateav.style.display = 'none';
+	ui.uptodate.style.display = 'none';
+	ui.updatech.style.display = 'block';
+		var options = {
+			host: 'localhost',
+			path: '/',
+			port: '59150',
+			method: 'POST',
+			headers: {'getupdate': version.toString()}
+		};
+
+		var req = http.request(options, function(response) {
+			response.setEncoding('utf8');
+			var str = '';
+			response.on('data', function (chunk) {
+				str += chunk;
+			});
+
+			response.on('end', function () {
+				ui.updatech.style.display = 'none';
+				if(str == "up"){
+					ui.updateav.style.display = 'block';
+				}else if(str == "cr"){
+					ui.uptodate.style.display = 'block';
+				}
+			});
+		});
+		//This is the data we are posting, it needs to be a string or a buffer
+		req.write('');
+		req.end();
+}
+function downloadAndUpdate(){
+	var fileurl = 'http://github.com/rurigk/osuplayer/archive/master.zip';
+	ui.updateav.style.display = 'none';
+	ui.uptodate.style.display = 'none';
+	ui.updatech.style.display = 'none';
+	ui.updatedl.style.display = 'block';
+	download(fileurl,'update.zip',function(){
+		main_window.reloadDev();
+	},function(prog){
+		ui.updatedl.innerHTML = "Downloading "+prog+"%";
+	})
+}
+
+//Download function with progress
+function download(url,dest,callback,onprog){
+	try{
+		if(fs.statSync(dest)){
+			fs.unlink(dest);
+		}
+	}catch(e){}
+	var file = fs.createWriteStream(dest);
+	var request = httpfr.get(url, function (response) {
+		var len = parseInt(response.headers['content-length'], 10);
+		var cur = 0;
+		response.pipe(file);
+		response.on("data", function(chunk) {
+			cur += chunk.length;
+			if(onprog){
+				onprog((100.0 * cur / len).toFixed(2));
+			}
+		});
+		file.on('finish', function () {
+			file.close(callback); // close() is async, call callback after close completes.
+		});
+		file.on('error', function (err) {
+			fs.unlink(dest); // Delete the file async. (But we don't check the result)
+			if (callback)
+				callback(err.message);
+		});
+	});
+}
+
+var reA = /[^a-zA-Z]/g;
+var reN = /[^0-9]/g;
+function sortAlphaNum(a,b) {
+	a=a.toLowerCase();
+	b=b.toLowerCase();
+	var AInt = parseInt(a, 10);
+	var BInt = parseInt(b, 10);
+
+	if(isNaN(AInt) && isNaN(BInt)){
+		var aA = a.replace(reA, "");
+		var bA = b.replace(reA, "");
+		if(aA === bA) {
+			var aN = parseInt(a.replace(reN, ""), 10);
+			var bN = parseInt(b.replace(reN, ""), 10);
+			return aN === bN ? 0 : aN > bN ? 1 : -1;
+		} else {
+			return aA > bA ? 1 : -1;
+		}
+	}else if(isNaN(AInt)){
+		return 1;
+	}else if(isNaN(BInt)){
+		return -1;
+	}else{
+		return AInt > BInt ? 1 : -1;
 	}
 }

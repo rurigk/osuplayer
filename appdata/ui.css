@@ -173,6 +173,9 @@ img{
 	margin-left: 10px;
 	width: calc(100% - 170px);
 }
+.specialsn{
+	width: calc(100% - 210px);
+}
 .songtitle{
 	font-size: 1.3em;
 	text-overflow: ellipsis;
@@ -354,13 +357,13 @@ img{
 	border-radius: 4px;
 	padding: 20px;
 	width: 80%;
-	height: 80%;
+	height: 90%;
 	text-align: center;
 }
 
 .pippi{
 	width: auto;
-	height: calc(100% - 140px);
+	height: calc(100% - 170px);
 }
 
 .st-sec{
@@ -397,10 +400,6 @@ img{
 	color: #0AF;
 }
 
-.devbox{
-	margin-top: 20px;
-}
-
 .tabview{
 	position: absolute;
 	top: 50px;
@@ -423,7 +422,7 @@ img{
 	background-color: #FF77B4;
 	color: #FFF;
 }
-.tab[sel='true']{
+.htab[sel='true']{
 	background-color: #FF77B4;
 	color: #FFF;
 }
@@ -447,7 +446,7 @@ img{
 	height: 80%;
 	text-align: center;
 }
-.addtoplaylist{
+.addtoplaylist,.snoptions{
 	width: 32px;
 	height: 32px;
 	display: flex;
@@ -458,7 +457,9 @@ img{
 	border-radius: 4px;
 	cursor: pointer;
 }
-
+.snoptions{
+	margin-right: 0px;
+}
 #addtopl{
 	display: none;
 	position: absolute;
@@ -490,6 +491,29 @@ img{
 	font-size: 1.1em;
 }
 .playlist-item:hover{
+	background-color: #FF77B4;
+	color: #FFF;
+}
+
+#sn-options{
+	display: none;
+	position: absolute;
+	width: 200px;
+	height: 86px;
+	border: 1px solid #CCC;
+	border-radius: 4px;
+	background-color: #FFF;
+}
+.sn-option{
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	width: 100%;
+	padding: 4px;
+	cursor: default;
+	font-size: 1.1em;
+}
+.sn-option:hover{
 	background-color: #FF77B4;
 	color: #FFF;
 }
@@ -581,6 +605,99 @@ img{
 .editplaylist:hover,.removeplaylist:hover{
 	background-color: #EEE;
 }
+.newplbox, .editplc,.removeplc{
+	position: relative;
+	background-color: #FFF;
+	border-radius: 4px;
+	padding: 20px;
+	width: 500px;
+	height: 150px;
+	text-align: center;
+}
+.removeplc{
+	height: 110px;
+}
+#newplname, #editplname{
+	width: 90%;
+	font-size: 1.4em;
+	padding:5px;
+	outline: none;
+	margin-top: 14px;
+}
+#createpl,#savepl,#removeplb{
+	margin-top: 14px;
+	background-color: #FF77B4;
+	color: #FFF;
+	font-size: 1.4em;
+	border: 1px solid #FF77B4;
+	outline: none;
+	border-radius: 3px;
+	cursor: pointer;
+	padding: 5px 8px 5px 8px;
+}
+.closenpl, .closeepl, .closerpl{
+	cursor: pointer;
+	padding: 5px;
+	position: absolute;
+	right: 5px;
+	top: 4px;
+}
+.closenpl:hover,.closeepl:hover{
+	color: #0AF;
+}
+
+.bgimgpl{
+	position: relative;
+	width: 80px;
+	height: 60px;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: pointer;
+}
+.bgimgpl2{
+	background-position: 40px 50%,0px 50%;
+}
+.bgimgpl3{
+	background-position: 53px 50%, 25px 50%, 0px 50%;
+}
+.bgimgpl:hover:before{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	color: #FFF;
+	background-color: rgba(0,0,0,0.4);
+	font-size: 2em;
+	content:"\F04B";
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
+}
+#cplaylistsh{display: none;}
+.devbox{
+	margin-top: 2px;
+}
+.updatetx{
+	height: 48px;
+	padding-top: 4px;
+}
+#chfu,#opud,#chfd{
+	display: none;
+	padding-top: 10px;
+}
+#unow{
+	display: none;
+}
+.updatenow{
+	background-color: #FF77B4;
+	color: #FFF;
+	font-size: 1.1em;
+	border: 1px solid #FF77B4;
+	outline: none;
+	border-radius: 3px;
+	cursor: pointer;
+	padding: 5px 5px 5px 5px;
+}
 
 /* Let's get this party started */
 ::-webkit-scrollbar {
@@ -597,4 +714,60 @@ img{
 ::-webkit-scrollbar-thumb {
 	border-radius: 10px;
 	background-color: #FF66AA;
+}
+/* ============================================================
+  COMMON
+============================================================ */
+.switch{
+	display: inline-block;
+	height: 18px;
+	padding-top: 4px;
+}
+.cmn-toggle {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+.cmn-toggle + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+/* ============================================================
+  SWITCH 1 - ROUND
+============================================================ */
+input.cmn-toggle-round + label {
+  width: 30px;
+  height: 18px;
+  background-color: #BBB;
+  border-radius: 60px;
+}
+input.cmn-toggle-round + label:before, input.cmn-toggle-round + label:after {
+  display: block;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  bottom: 1px;
+  content: "";
+}
+input.cmn-toggle-round + label:before {
+  right: 1px;
+  background-color: #DDD;
+  border-radius: 60px;
+  transition: background 0.4s;
+}
+input.cmn-toggle-round + label:after {
+  width: 15px;
+  background-color: #fff;
+  border-radius: 100%;
+  transition: margin 0.4s;
+}
+input.cmn-toggle-round:checked + label:before {
+  background-color: #FF62C2;
+}
+input.cmn-toggle-round:checked + label:after {
+  margin-left: 13px;
 }

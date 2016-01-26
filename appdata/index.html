@@ -29,8 +29,10 @@
 		</div>
 	</div>
 	<div class='tabview'>
-		<div class='bz l tab nosel mainlistsh' sel='true'>Mainlist</div>
-		<div class='bz l tab nosel playlistsh' sel='false'>Playlists</div>
+		<div class='bz l tab nosel mainlistsh htab' sel='true'>Mainlist</div>
+		<div class='bz l tab nosel playlistsh htab' sel='false'>Playlists</div>
+		<div class='bz l tab nosel htab' id='cplaylistsh' sel='false'></div>
+		<div class='bz r tab nosel createplaylistsh' sel='false'>New playlist</div>
 	</div>
 	<div id='songslist' class='bz'></div>
 	<div id='playlists' class='bz'></div>
@@ -62,13 +64,31 @@
 				Osu songs path: <input id='osupath' type='text'><div id='savelocation'>&#xF00C;</div>
 			</div>
 			<div class='st-sec' style='padding-top: 4px;'>
-				Use songs cache: <input type='checkbox' id='usecache' name='usecache' checked>
+				Use songs cache: <div class="switch bz">
+									<input id="usecache" class="cmn-toggle cmn-toggle-round" type="checkbox" >
+									<label for="usecache"></label>
+								</div>
 			</div>
 			<div class='st-sec'>
-				Find options:<br><br>
-				Title: <input type='checkbox' id='findtitle' checked>
-				Artist: <input type='checkbox' id='findartist' checked>
-				Creator: <input type='checkbox' id='findcreator'>
+				Find by &#xF054; 
+				Title: 	<div class="switch bz">
+							<input id="findtitle" class="cmn-toggle cmn-toggle-round" type="checkbox" >
+							<label for="findtitle"></label>
+						</div>
+				Artist: <div class="switch bz">
+							<input id="findartist" class="cmn-toggle cmn-toggle-round" type="checkbox" >
+							<label for="findartist"></label>
+						</div>
+				Creator: <div class="switch bz">
+							<input id="findcreator" class="cmn-toggle cmn-toggle-round" type="checkbox" >
+							<label for="findcreator"></label>
+						</div>
+			</div>
+			<div class='updatetx bz'>
+				<div id='opud'>Osu! Player is up to date</div>
+				<div id='chfu'>Checking for updates...</div>
+				<div id='chfd'>Downloading 0%</div>
+				<div id='unow'>Update available <button class='updatenow'>Update now</button></div>
 			</div>
 			<div class='devbox'>
 				Developed by Rurigk
@@ -86,6 +106,34 @@
 	<div id='addtopl'>
 		<div class='addtopl-title nosel'>Add to playlist</div>
 		<div id='plist-db' class='bz nosel'></div>
+	</div>
+	<div id='sn-options'>
+		<div class='sn-option bz moveup'>&#xF077; Move up</div>
+		<div class='sn-option bz movedown'>&#xF078; Move down</div>
+		<div class='sn-option bz removefrompl'>&#xF014; Remove</div>
+	</div>
+	<div id='newpl' class='loadbox nosel'>
+		<div class='newplbox'>
+			<div class='closenpl r'>&#xF00D;</div>
+			<div style='margin-top: 10px;font-size: 1.6em;'>New Playlist</div>
+			<input type='text' id='newplname' placeholder='Playlist name'>
+			<button id='createpl'>Create</button>
+		</div>
+	</div>
+	<div id='editpl' class='loadbox nosel'>
+		<div class='editplc'>
+			<div class='closeepl r'>&#xF00D;</div>
+			<div style='margin-top: 10px;font-size: 1.6em;'>Edit Playlist</div>
+			<input type='text' id='editplname' placeholder='Playlist name'>
+			<button id='savepl'>Save</button>
+		</div>
+	</div>
+	<div id='removepl' class='loadbox nosel'>
+		<div class='removeplc'>
+			<div class='closerpl r'>&#xF00D;</div>
+			<div style='margin-top: 10px;font-size: 1.6em;'>Delete playlist?</div>
+			<button id='removeplb'>Delete playlist</button>
+		</div>
 	</div>
 </body>
 </html>
