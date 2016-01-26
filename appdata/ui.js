@@ -43,7 +43,7 @@ var extract = require('extract-zip')
 var osu = require('./osuPlaylist.js');
 
 var debug = false;
-var version = 0.2;
+var version = 0.3;
 
 var cachesongs = {};
 
