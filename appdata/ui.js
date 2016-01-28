@@ -43,7 +43,7 @@ var extract = require('extract-zip')
 var osu = require('./osuPlaylist.js');
 
 var debug = false;
-var version = 0.3;
+var version = 0.4;
 
 var cachesongs = {};
 
@@ -179,7 +179,7 @@ window.addEventListener('load',function(){
 		if(e.keyCode == 18){keyh.altk=false;}
 	});
 	window.addEventListener('keypress',function(e){
-		if(e.keyCode == 32){
+		if(e.keyCode == 32 && document.activeElement.nodeName != "INPUT"){
 			if(audio.src != ''){
 				if(audio.paused){
 					audio.play();
@@ -323,6 +323,8 @@ function clickManager(e){
 		}else{
 			ui.soundbar.setAttribute('sw','true');
 		}
+	}else{
+		ui.soundbar.setAttribute('sw','false');
 	}
 	if(is(e,'#gosong') && player.currentTrack != ""){
 		var hash = btoaU(player.currentTrack);
@@ -388,6 +390,9 @@ function clickManager(e){
 	if(is(e,'.closerpl')){
 		ui.removepl.style.display = 'none';
 	}
+	if(is(e,'.closenews')){
+		ui.news.style.display = 'none';
+	}
 	if(is(e,'#createpl')){
 		if(ui.newplinput.value != '' && ui.newplinput.value != 'main'){
 			newPlaylist(ui.newplinput.value);
@@ -420,6 +425,7 @@ function clickManager(e){
 	}
 	if(is(e,'#cplaylistsh')){
 		showPlaylist(current_playlist_playing);
+		current_playlist = current_playlist_playing;
 	}
 	if(is(e,'.bgimgpl')){
 		var plname = closest(e,'.playlist').getAttribute('plname')
@@ -543,6 +549,7 @@ function loadElements(){
 	ui.updatedl = document.getElementById('chfd');
 	ui.updateav = document.getElementById('unow');
 
+	ui.news = document.getElementById('news');
 }
 function loadSongs(fr){
 	ui.loadbox.style.display = 'flex';
@@ -899,7 +906,7 @@ function installLogOnServer(){
 		Send an anonymous signal to register new installation to know the reach of users
 	*/
 	try{
-		fs.statSync('id0_3.ns');
+		fs.statSync('id0_4.ns');
 	}catch(e){
 		var options = {
 			host: 'maquivol.com',
@@ -918,10 +925,11 @@ function installLogOnServer(){
 
 			response.on('end', function () {
 				if(str == "reg"){
-					fs.writeFile('id0_3.ns', 
+					fs.writeFile('id0_4.ns', 
 						'This file is created after install to know if is new installation, please no delete this file.'+
 						'Este archivo se crea después de la instalación para saber si es nueva instalación, por favor, no elimine este archivo'
 						, 'utf8');
+					showNews();
 				}
 			});
 		});
@@ -1064,4 +1072,8 @@ function sortAlphaNum(a,b) {
 	}else{
 		return AInt > BInt ? 1 : -1;
 	}
+}
+
+function showNews(){
+	ui.news.style.display = 'flex';
 }

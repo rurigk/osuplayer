@@ -635,7 +635,7 @@ img{
 	cursor: pointer;
 	padding: 5px 8px 5px 8px;
 }
-.closenpl, .closeepl, .closerpl{
+.closenpl, .closeepl, .closerpl,.closenews{
 	cursor: pointer;
 	padding: 5px;
 	position: absolute;
@@ -645,7 +645,15 @@ img{
 .closenpl:hover,.closeepl:hover{
 	color: #0AF;
 }
-
+.newsbox{
+	position: relative;
+	background-color: #FFF;
+	border-radius: 4px;
+	padding: 20px;
+	width: 800px;
+	height: 500px;
+	text-align: center;
+}
 .bgimgpl{
 	position: relative;
 	width: 80px;
