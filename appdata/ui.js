@@ -43,7 +43,7 @@ var extract = require('extract-zip')
 var osu = require('./osuPlaylist.js');
 
 var debug = false;
-var version = 0.4;
+var version = 0.5;
 
 var cachesongs = {};
 
@@ -189,6 +189,7 @@ window.addEventListener('load',function(){
 					setPlayerState(false);
 				}
 			}
+			e.preventDefault();
 		}
 	})
 	ui.songslist.addEventListener('scroll',updateThumbnails);
@@ -467,6 +468,15 @@ function clickManager(e){
 	}
 	if(is(e,'.updatenow')){
 		downloadAndUpdate();
+	}
+	if(is(e,'.nr-time')){
+		audio.playbackRate = 1;
+	}
+	if(is(e,'.ht-time')){
+		audio.playbackRate = 0.75
+	}
+	if(is(e,'.dt-time')){
+		audio.playbackRate = 1.5
 	}
 }
 
@@ -906,7 +916,7 @@ function installLogOnServer(){
 		Send an anonymous signal to register new installation to know the reach of users
 	*/
 	try{
-		fs.statSync('id0_4.ns');
+		fs.statSync('id0_5.ns');
 	}catch(e){
 		var options = {
 			host: 'maquivol.com',
@@ -925,7 +935,7 @@ function installLogOnServer(){
 
 			response.on('end', function () {
 				if(str == "reg"){
-					fs.writeFile('id0_4.ns', 
+					fs.writeFile('id0_5.ns', 
 						'This file is created after install to know if is new installation, please no delete this file.'+
 						'Este archivo se crea después de la instalación para saber si es nueva instalación, por favor, no elimine este archivo'
 						, 'utf8');

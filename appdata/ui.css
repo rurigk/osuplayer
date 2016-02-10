@@ -11,8 +11,8 @@
 .bz{box-sizing: border-box;-webkit-box-sizing: border-box;}
 .nosel{-webkit-user-select: none;cursor: default;}
 *{margin: 0px;font-family: 'FontAwesome', sans-serif;}
-*::selection {
-	background: rgba(255,255,255,0.5);
+::selection {
+	background: rgba(246, 99, 165, 0.76);
 }
 body{
 	background-image: url('img/page-light.png');
@@ -209,14 +209,36 @@ img{
 	background-image: url("img/osuicon.ico");
 }
 #trackbar{
+	display: inline-block;
 	position: relative;
 	margin-top: 6px;
-	width: 500px;
+	width: 400px;
 	height: 10px;
 	background-color: #DDD;
 	background-image: linear-gradient(#FF66AA, #FF66AA);
 	background-size: 0% 100%;
 	background-repeat: no-repeat;
+}
+.timebts{
+	display: inline-block;
+	width: 100px;
+}
+.timebts div{
+	font-size: 0.8em;
+	color: #FFF;
+	padding: 3px;
+	margin-right: 2px;
+	cursor: pointer;
+}
+
+.nr-time{
+	background-color: #FF66AA;
+}
+.ht-time{
+	background-color: #555;
+}
+.dt-time{
+	background-color: #512A79;
 }
 
 #opendir{
