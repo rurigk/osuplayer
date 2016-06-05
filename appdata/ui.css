@@ -171,7 +171,7 @@ img{
 }
 .songinfo{
 	margin-left: 10px;
-	width: calc(100% - 170px);
+	width: calc(100% - 210px);
 }
 .specialsn{
 	width: calc(100% - 210px);
@@ -468,7 +468,7 @@ img{
 	height: 80%;
 	text-align: center;
 }
-.addtoplaylist,.snoptions{
+.addtoplaylist,.snoptions,.showinexplorer{
 	width: 32px;
 	height: 32px;
 	display: flex;
