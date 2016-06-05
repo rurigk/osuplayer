@@ -39,10 +39,12 @@ var path = require('path');
 var http = require('http');
 var httpfr = require('follow-redirects').http;
 var gui = require('nw.gui');
-var extract = require('extract-zip')
+var extract = require('extract-zip');
+var os = require("os");
+var exec = require('child_process').exec;
 var osu = require('./osuPlaylist.js');
 
-var debug = false;
+var debug = true;
 var version = 0.5;
 
 var cachesongs = {};
@@ -195,6 +197,29 @@ window.addEventListener('load',function(){
 	ui.songslist.addEventListener('scroll',updateThumbnails);
 	playerUi();
 });
+var globalMediakeyPlay = {
+	key : "MediaPlayPause",
+	active : function() {
+		console.log("Global desktop keyboard shortcut: " + this.key + " active."); 
+	},
+	failed : function(msg) {
+		// :(, fail to register the |key| or couldn't parse the |key|.
+		console.log(msg);
+	}
+};
+
+var PlayPauseShortcut = new gui.Shortcut(globalMediakeyPlay);
+
+PlayPauseShortcut.on('active', function() {
+	console.log("Global desktop keyboard shortcut: " + this.key + " active."); 
+});
+
+PlayPauseShortcut.on('failed', function(msg) {
+	console.log(msg);
+});
+
+gui.App.registerGlobalHotKey(PlayPauseShortcut);
+
 
 function updateThumbnails(){
 	ui.pldialog.style.display = 'none';
@@ -348,6 +373,21 @@ function clickManager(e){
 		ui.pldialoglist.setAttribute('hash',closest(e,'.song').getAttribute('hash'));
 	}else{
 		ui.pldialog.style.display = 'none';
+	}
+	if(is(e,'.showinexplorer')){
+		var fpath = cachesongs[atobU(closest(e,'.song').getAttribute('hash'))].path;
+		switch(os.platform()){
+			case "linux":
+				exec('xdg-open "'+fpath+'"',function(err){
+					if(err){
+						console.log(err);
+					}
+				});
+			break;
+			default:
+				alert("Not support for your system");
+			break;
+		}
 	}
 	if(is(e,'.snoptions')){
 		var fpos = ((e.target.offsetTop+90)-ui.songslist.scrollTop);
@@ -641,6 +681,7 @@ function showPlaylist(name){
 		"		<div class='songmapper'>"+cachesongs[songname].creator+"</div>"+
 		"	</div>"+
 		"	<div class='r songoptions'>"+
+		"		<div class='showinexplorer'>&#xF07B;</div>"+
 		"		<div class='addtoplaylist'>&#xF067;</div>"+
 		(name == 'main'? '':"		<div class='snoptions'>&#xF0C9;</div>")+
 		//"		<div class='maplink' mapid='"+cachesongs[songname].mapid+"'></div>"+
