@@ -1015,7 +1015,7 @@ function checkUpdates(){
 	ui.uptodate.style.display = 'none';
 	ui.updatech.style.display = 'block';
 		var options = {
-			host: 'maquivol.com',
+			host: 'osumexico.com',
 			path: '/',
 			port: '59150',
 			method: 'POST',
