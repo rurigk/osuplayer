@@ -2,6 +2,7 @@
 	"main": "appdata/index.html",
 	"name": "OsuPlayer",
 	"single-instance": true,
+	"author": "Rurigk <rurigkdev@gmail.com>",
 	"window": {
 		"title": "Osu! Player",
 		"icon": "appdata/osu.png",
@@ -12,5 +13,13 @@
 		"height": 660,
 		"min_width": 920,
 		"min_height": 600
+	},
+	"dependencies" : {
+		"extract-zip" : "latest",
+		"follow-redirects" : "latest",
+		"fs.extra" : "latest"
+ 	},
+ 	"repository" : { 
+		"type" : "git", "url" : "https://github.com/rurigk/osuplayer.git"
 	}
 }
