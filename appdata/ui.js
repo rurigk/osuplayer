@@ -384,6 +384,20 @@ function clickManager(e){
 					}
 				});
 			break;
+			case "win32":
+				exec('start "'+fpath.replace(/\//g,"\\")+'"',function(err){
+					if(err){
+						console.log(err);
+					}
+				});
+			break;
+			case "darwin":
+				exec('open "'+fpath+'"',function(err){
+					if(err){
+						console.log(err);
+					}
+				});
+			break;
 			default:
 				alert("Not support for your system");
 			break;
@@ -960,7 +974,7 @@ function installLogOnServer(){
 		fs.statSync('id0_5.ns');
 	}catch(e){
 		var options = {
-			host: 'maquivol.com',
+			host: 'osumexico.com',
 			path: '/',
 			port: '59150',
 			method: 'POST',
