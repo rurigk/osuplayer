@@ -1102,6 +1102,17 @@ function moveFilesUp(dr){
 	fsextra.rmrfSync('appdata');
 	fsextra.rmrfSync('node_modules');
 	fsextra.rmrfSync('package.json');
+	try{
+		if(fs.statSync("osuplayer-RurigkDev/ffmpegsumo.dll")){
+			fs.unlink("ffmpegsumo.dll");
+		}
+		if(fs.statSync("osuplayer-RurigkDev/ffmpegsumo.so")){
+			fs.unlink("ffmpegsumo.so");
+		}
+		if(fs.statSync("osuplayer-RurigkDev/libffmpegsumo.so")){
+			fs.unlink("libffmpegsumo.so");
+		}
+	}catch(e){}
 	var files = fs.readdirSync(dr);
 	for (var i = 0; i < files.length; i++) {
 		fsextra.move(path.join(dr,files[i]), files[i], function (err) {
