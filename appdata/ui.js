@@ -691,6 +691,7 @@ function loadSongsx(fr){
 		var songs = JSON.parse(fs.readFileSync('songs.cache',{encoding:'utf8'}));
 		cachesongs = songs;
 	}
+	playlists.main = [];
 	for(song in songs){
 		playlists.main[playlists.main.length] = song;
 	}
