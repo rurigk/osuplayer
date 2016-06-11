@@ -43,6 +43,7 @@ var extract = require('extract-zip');
 var os = require("os");
 var exec = require('child_process').exec;
 var osu = require('./osuPlaylist.js');
+var spider = require('./osuspider.js');
 
 var debug = true;
 var version = 0.5;
@@ -532,6 +533,26 @@ function clickManager(e){
 	if(is(e,'.dt-time')){
 		audio.playbackRate = 1.5
 	}
+	if(is(e,'#songimg')){
+		if(e.target.getAttribute('username') != ""){
+			gui.Shell.openExternal("https://osu.ppy.sh/u/"+e.target.getAttribute('username'));
+		}
+	}
+	if(is(e,'#saveuser')){
+		localStorage['user'] = document.getElementById("osuname").value;
+		if(typeof localStorage['user'] != "undefined" && localStorage['user'] != ""){
+			spider.getUserData(localStorage['user'],function(data){
+				ui.songimg.src = 'http://a.ppy.sh/'+data.image;
+				ui.songimg.setAttribute('username',data.name);
+			});
+		}else{
+			ui.songimg.src = "img/avatar-guest.png";
+			ui.songimg.setAttribute('username','');
+		}
+	}
+	if(is(e,'#openrepo')){
+		gui.Shell.openExternal("https://github.com/rurigk/osuplayer");
+	}
 }
 
 audio.addEventListener('ended',function(){
@@ -564,6 +585,7 @@ function loadElements(){
 	ui.opendir = document.getElementById('opendir');
 	ui.settingsbox = document.getElementById('settings');
 	ui.locationbox = document.getElementById('osupath');
+	ui.userbox = document.getElementById('osuname');
 	ui.usecache = document.getElementById('usecache');
 	ui.usecache.checked = settings.usecache;
 	ui.findtitle = document.getElementById('findtitle');
@@ -614,6 +636,18 @@ function loadElements(){
 	ui.updateav = document.getElementById('unow');
 
 	ui.news = document.getElementById('news');
+
+	ui.songimg = document.getElementById('songimg');
+
+	ui.userbox.value = (typeof localStorage['user'] != "undefined")? localStorage['user']:"";
+	if(typeof localStorage['user'] != "undefined" && localStorage['user'] != ""){
+		spider.getUserData(localStorage['user'],function(data){
+			ui.songimg.src = 'http://a.ppy.sh/'+data.image;
+			ui.songimg.setAttribute('username',data.name);
+		});
+	}else{
+		ui.songimg.setAttribute('username','');
+	}
 }
 function loadSongs(fr){
 	ui.loadbox.style.display = 'flex';
@@ -657,6 +691,7 @@ function loadSongsx(fr){
 		var songs = JSON.parse(fs.readFileSync('songs.cache',{encoding:'utf8'}));
 		cachesongs = songs;
 	}
+	playlists.main = [];
 	for(song in songs){
 		playlists.main[playlists.main.length] = song;
 	}

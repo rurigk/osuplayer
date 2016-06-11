@@ -23,9 +23,6 @@ body{
 	bottom: 0px;
 	overflow: hidden;
 }
-img{
-	pointer-events: none;
-}
 .logo{
 	-webkit-app-region: drag;
 	margin: 4px;
@@ -96,7 +93,7 @@ img{
 	background-color: #EEE;
 	width: 70px;
 	height: 70px;
-	pointer-events: none;
+	cursor: pointer;
 }
 
 .songp-info{
@@ -385,7 +382,7 @@ img{
 
 .pippi{
 	width: auto;
-	height: calc(100% - 170px);
+	height: calc(100% - 220px);
 }
 
 .st-sec{
@@ -396,13 +393,13 @@ img{
 	margin-bottom: 4px;
 }
 
-#osupath{
+#osupath, #osuname{
 	outline: none;
 	font-size: 1.1em;
 	width: calc(100% - 150px);
 }
 
-#savelocation{
+#savelocation, #saveuser{
 	float: right;
 	display: inline-block;
 	background-color: #27BA27;
