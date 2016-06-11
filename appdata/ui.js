@@ -46,7 +46,7 @@ var osu = require('./osuPlaylist.js');
 var spider = require('./osuspider.js');
 
 var debug = true;
-var version = 0.5;
+var version = 0.6;
 
 var cachesongs = {};
 
@@ -667,9 +667,6 @@ function loadSongsx(fr){
 	try{
 		fs.statSync(localStorage['location']);
 		ui.locationbox.value = localStorage['location'];
-		if(debug){
-			ui.locationbox.value = "/home/rurigk/.wine/drive_c/users/rurigk/Local Settings/Application Data/osu!/Songs";
-		}
 	}catch(e){
 		ui.loadbox.style.display = 'none';
 		ui.settingsbox.style.display = 'flex';
@@ -1006,7 +1003,7 @@ function installLogOnServer(){
 		Send an anonymous signal to register new installation to know the reach of users
 	*/
 	try{
-		fs.statSync('id0_5.ns');
+		fs.statSync('id0_6.ns');
 	}catch(e){
 		var options = {
 			host: 'osumexico.com',
@@ -1025,7 +1022,7 @@ function installLogOnServer(){
 
 			response.on('end', function () {
 				if(str == "reg"){
-					fs.writeFile('id0_5.ns', 
+					fs.writeFile('id0_6.ns', 
 						'This file is created after install to know if is new installation, please no delete this file.'+
 						'Este archivo se crea después de la instalación para saber si es nueva instalación, por favor, no elimine este archivo'
 						, 'utf8');
