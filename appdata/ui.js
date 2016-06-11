@@ -47,6 +47,7 @@ var spider = require('./osuspider.js');
 
 var debug = true;
 var version = 0.6;
+var branch = "RurigkDev";
 
 var cachesongs = {};
 
@@ -1075,7 +1076,7 @@ function checkUpdates(){
 		req.end();
 }
 function downloadAndUpdate(){
-	var fileurl = 'http://github.com/rurigk/osuplayer/archive/master.zip';
+	var fileurl = 'http://github.com/rurigk/osuplayer/archive/'+branch+'.zip';
 	ui.updateav.style.display = 'none';
 	ui.uptodate.style.display = 'none';
 	ui.updatech.style.display = 'none';
@@ -1092,7 +1093,7 @@ function downloadAndUpdate(){
 }
 function extractAndReload(){
 	extract('update.zip', {dir: './'}, function (err) {
-		moveFilesUp('osuplayer-master');
+		moveFilesUp('osuplayer-'+branch);
 	})
 }
 function moveFilesUp(dr){
@@ -1100,13 +1101,13 @@ function moveFilesUp(dr){
 	fsextra.rmrfSync('node_modules');
 	fsextra.rmrfSync('package.json');
 	try{
-		if(fs.statSync("osuplayer-RurigkDev/ffmpegsumo.dll")){
+		if(fs.statSync("osuplayer-"+branch+"/ffmpegsumo.dll")){
 			fs.unlink("ffmpegsumo.dll");
 		}
-		if(fs.statSync("osuplayer-RurigkDev/ffmpegsumo.so")){
+		if(fs.statSync("osuplayer-"+branch+"/ffmpegsumo.so")){
 			fs.unlink("ffmpegsumo.so");
 		}
-		if(fs.statSync("osuplayer-RurigkDev/libffmpegsumo.so")){
+		if(fs.statSync("osuplayer-"+branch+"/libffmpegsumo.so")){
 			fs.unlink("libffmpegsumo.so");
 		}
 	}catch(e){}
@@ -1118,7 +1119,7 @@ function moveFilesUp(dr){
 				console.log(err);
 			}
 			if(this.endxf){
-				fsextra.rmrfSync('osuplayer-master');
+				fsextra.rmrfSync('osuplayer-'+branch);
 				fs.unlink('update.zip');
 				this.main_window.reloadDev();
 			}
