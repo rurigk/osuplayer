@@ -3,13 +3,20 @@ var spider = {}
 
 spider.getUserData = function(user,callback){
 	var image_regex = /<div class="avatar-holder"><img src="\/\/a\.ppy\.sh\/(.+)" alt="User avatar"\/><\/div>/g;
-	var name_regex = /<div class="profile-username" (?:title="(?:.+)")>\n?(.+)\n?<\/div>/g;
+	var name_regex = /<div class="profile-username" (?:title="(?:.+)")?>\n?(.+)\n?<\/div>/g;
 	var country_regex = /<img class='flag' title='(.+)'/g;
 	spider.webrequest("osu.ppy.sh","/u/"+user,80,function(dt){
-		var userimage = image_regex.exec(dt)[1];
-		var username = name_regex.exec(dt)[1];
-		var usercountry = country_regex.exec(dt)[1];
-
+		try{
+			var userimage = image_regex.exec(dt)[1];
+			var username = name_regex.exec(dt)[1];
+			var usercountry = country_regex.exec(dt)[1];
+		}catch(e){
+			console.log(dt);
+			console.log(e);
+			var userimage = "img/avatar-guest.png";
+			var username = "";
+			var usercountry = "";
+		}
 		this.callback({
 			image : userimage,
 			name : username,

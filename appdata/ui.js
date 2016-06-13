@@ -200,27 +200,51 @@ window.addEventListener('load',function(){
 	playerUi();
 });
 var globalMediakeyPlay = {
-	key : "MediaPlayPause",
-	active : function() {
-		console.log("Global desktop keyboard shortcut: " + this.key + " active."); 
-	},
-	failed : function(msg) {
-		// :(, fail to register the |key| or couldn't parse the |key|.
-		console.log(msg);
-	}
+	key : "MediaPlayPause"
+};
+var globalMediaNextTrack = {
+	key : "MediaNextTrack"
+};
+var globalMediaPrevTrack = {
+	key : "MediaPrevTrack"
 };
 
 var PlayPauseShortcut = new gui.Shortcut(globalMediakeyPlay);
+var NextTrackShortcut = new gui.Shortcut(globalMediaNextTrack);
+var PrevTrackShortcut = new gui.Shortcut(globalMediaPrevTrack);
 
 PlayPauseShortcut.on('active', function() {
-	console.log("Global desktop keyboard shortcut: " + this.key + " active."); 
+	if(audio.src != ''){
+		if(audio.paused){
+			audio.play();
+			setPlayerState(true);
+		}else{
+			audio.pause();
+			setPlayerState(false);
+		}
+	}
+});
+NextTrackShortcut.on('active', function() {
+	nextTrack();
+});
+
+PrevTrackShortcut.on('active', function() {
+	prevTrack();
 });
 
 PlayPauseShortcut.on('failed', function(msg) {
 	console.log(msg);
 });
+NextTrackShortcut.on('failed', function(msg) {
+	console.log(msg);
+});
+PrevTrackShortcut.on('failed', function(msg) {
+	console.log(msg);
+});
 
 gui.App.registerGlobalHotKey(PlayPauseShortcut);
+gui.App.registerGlobalHotKey(NextTrackShortcut);
+gui.App.registerGlobalHotKey(PrevTrackShortcut);
 
 
 function updateThumbnails(){
@@ -387,7 +411,7 @@ function clickManager(e){
 				});
 			break;
 			case "win32":
-				exec('start "'+fpath.replace(/\//g,"\\")+'"',function(err){
+				exec('start "" "'+fpath.replace(/\//g,"\\")+'"',function(err){
 					if(err){
 						console.log(err);
 					}
@@ -701,6 +725,17 @@ function loadSongsx(fr){
 }
 function showPlaylist(name){
 	var cod = '';
+	//Se quitan los maps eliminadas de la playlist 
+	for (var i = playlists[name].length - 1; i >= 0; i--) {
+		var songname = playlists[name][i];
+		if(typeof cachesongs[songname] == "undefined"){
+			removeFromPlaylist(name,songname,true);
+		}
+	};
+	//Se debe llamar explicitamente para guardar los cambios
+	savePlaylists();
+
+	//Se listan las canciones y se convierten en html para mostrar
 	for (var i = 0; i < playlists[name].length; i++) {
 		var songname = playlists[name][i];
 		if(cachesongs[songname].backgrounds.length > 0){
@@ -896,8 +931,9 @@ function addToPlaylist(pl,song){
 	savePlaylists();
 }
 
-function removeFromPlaylist(pl,song){
+function removeFromPlaylist(pl,song,noui){
 	playlists[pl].splice(playlists[pl].indexOf(song),1);
+	if(typeof noui != "undefined" && noui == true){return true;}
 	savePlaylists();
 	showPlaylist(current_playlist);
 }
@@ -1110,7 +1146,9 @@ function moveFilesUp(dr){
 		if(fs.statSync("osuplayer-"+branch+"/libffmpegsumo.so")){
 			fs.unlink("libffmpegsumo.so");
 		}
-	}catch(e){}
+	}catch(e){
+		console.log(e);
+	}
 	var files = fs.readdirSync(dr);
 	for (var i = 0; i < files.length; i++) {
 		fsextra.move(path.join(dr,files[i]), files[i], function (err) {
