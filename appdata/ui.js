@@ -567,7 +567,7 @@ function clickManager(e){
 		localStorage['user'] = document.getElementById("osuname").value;
 		if(typeof localStorage['user'] != "undefined" && localStorage['user'] != ""){
 			spider.getUserData(localStorage['user'],function(data){
-				ui.songimg.src = 'http://a.ppy.sh/'+data.image;
+				ui.songimg.src = data.image;
 				ui.songimg.setAttribute('username',data.name);
 			});
 		}else{
