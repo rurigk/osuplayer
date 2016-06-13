@@ -667,7 +667,7 @@ function loadElements(){
 	ui.userbox.value = (typeof localStorage['user'] != "undefined")? localStorage['user']:"";
 	if(typeof localStorage['user'] != "undefined" && localStorage['user'] != ""){
 		spider.getUserData(localStorage['user'],function(data){
-			ui.songimg.src = 'http://a.ppy.sh/'+data.image;
+			ui.songimg.src = data.image;
 			ui.songimg.setAttribute('username',data.name);
 		});
 	}else{
