@@ -75,9 +75,19 @@ function fileExists(w){
 	}
 }
 
+try{
+	var st = fs.statSync("bgcache");
+	if(!st.isDirectory()){
+		alert("bgcache is not a directory, please delete bgcache and restart oss player");
+	}
+}catch(e){
+	fs.mkdir("bgcache");
+}
+
 var settings = {};
 var main_window = {};
 var tabs = {};
+var thumbnailQueue = {};
 
 /*--Settings--*/
 //Directorio de usuario
@@ -703,6 +713,11 @@ function loadSongsx(fr){
 	var cod = "";
 	if(!usecache){
 		var songsu = osu.getMedia(localStorage['location']);
+		if(songsu == null){
+			alert("Path must be a directory");
+			localStorage['location'] == "";
+			ui.locationbox.value == "";
+		}
 		var songs = {};
 		Object.keys(songsu).sort().forEach(function(key) {
 			songs[key] = songsu[key];
@@ -741,15 +756,25 @@ function showPlaylist(name){
 		if(cachesongs[songname].backgrounds.length > 0){
 			var basepath = cachesongs[songname].path;
 			var bgpath = path.join(basepath,cachesongs[songname].backgrounds[0]);
+			var bgcachepath = path.join(process.cwd(),"bgcache",cachesongs[songname].mapid+".jpg");
 			try{
-				fs.statSync(bgpath);
-				bgpath = bgpath.replace(/&/g, '&amp;');
-				bgpath = bgpath.replace(/"/g, '&quot;');
-				bgpath = bgpath.replace(/'/g, '&apos;');
-				bgpath = bgpath.replace(/#/g, '%23');
-				bgpath = bgpath.replace(/\\/g, '/');
+				fs.statSync(bgcachepath);
+				bgpath = bgcachepath;
 			}catch(e){
-				var bgpath = "img/osulogo-gray.svg";
+				try{
+					fs.statSync(bgpath);
+					bgpath = bgpath.replace(/#/g, '%23');
+					thumbnailQueue[cachesongs[songname].mapid]={
+						imgpath:bgpath,
+						mapid:cachesongs[songname].mapid
+					}
+					bgpath = bgpath.replace(/&/g, '&amp;');
+					bgpath = bgpath.replace(/"/g, '&quot;');
+					bgpath = bgpath.replace(/'/g, '&apos;');
+					bgpath = bgpath.replace(/\\/g, '/');
+				}catch(e){
+					var bgpath = "img/osulogo-gray.svg";
+				}
 			}
 		}else{
 			var bgpath = "img/osulogo-gray.svg";
@@ -775,6 +800,7 @@ function showPlaylist(name){
 	ui.playlists.style.display = 'none';
 	ui.songslist.style.display = 'block';
 	updateThumbnails();
+	genthumbnails();
 }
 function getSongBg(songname){
 	if(cachesongs[songname].backgrounds.length > 0){
@@ -1223,4 +1249,60 @@ function sortAlphaNum(a,b) {
 
 function showNews(){
 	ui.news.style.display = 'flex';
+}
+
+function createThumbnail(imagedd,mapid){
+		var image = document.createElement("img");
+		image.src = imagedd;
+		image.onload = function(){
+			var canvas = document.createElement('canvas');
+			var context = canvas.getContext('2d');
+			var canvas2 = document.createElement('canvas');
+			var context2 = canvas2.getContext('2d');
+			var steps = getSteps(image.width, image.height, 160, 120);
+			canvas.width = image.width;
+			canvas.height = image.height;
+			context.drawImage(image, 0, 0, canvas.width, canvas.height);
+			for (var i = 0; i < steps-1; i++) {
+				canvas2.width = canvas.width/2;
+				canvas2.height = canvas.height/2;
+				context2.drawImage(canvas, 0, 0, canvas2.width, canvas2.height);
+				canvas.width = canvas2.width;
+				canvas.height = canvas2.height;
+				context.drawImage(canvas2, 0, 0, canvas.width, canvas.height);
+			};
+			var srcBase64 = canvas.toDataURL("image/jpeg", 1.0);
+			saveThumbnail(srcBase64,mapid);
+		}
+}
+function saveThumbnail(base64,mapid){
+	var base64Data = base64.replace(/^data:[A-Za-z-+\/]+;base64,/, "");
+		fs.writeFile("bgcache/"+mapid+".jpg", base64Data, {
+			encoding : 'base64',
+			mode : 0666
+		}, function(err) {
+			if(err != null){
+			}else{
+				fs.chmodSync("bgcache/"+mapid+".jpg", '666');
+			}
+			genthumbnails();
+		});
+}
+function getSteps(w1, h1, w2, h2){
+	if(w1 >= h1){
+		var steps = Math.ceil(Math.log(w1 / w2) / Math.log(2));
+	}else{
+		var steps = Math.ceil(Math.log(h1 / h2) / Math.log(2));
+	}
+	return steps;
+}
+
+function genthumbnails(){
+	var keys = Object.keys(thumbnailQueue);
+	if(keys.length > 0){
+		var image = thumbnailQueue[keys[0]].imgpath;
+		var mapid = thumbnailQueue[keys[0]].mapid;
+		createThumbnail(image,mapid);
+		delete thumbnailQueue[keys[0]];
+	}
 }

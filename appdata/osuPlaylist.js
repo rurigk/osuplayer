@@ -19,7 +19,11 @@ function atobU(str) {
 function getMedia(osuPath){
 	osuFiles = [];
 	media = {};
-	var folders = fs.readdirSync(osuPath);
+	try{
+		var folders = fs.readdirSync(osuPath);
+	}catch(e){
+		return false;
+	}
 	for (var i = 0; i < folders.length; i++) {
 		osuFiles = osuFiles.concat(getOsuFiles(path.join(osuPath,folders[i])));
 	};

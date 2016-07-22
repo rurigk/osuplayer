@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8"> 
-	<title>Osu! Player</title>
+	<title>Oss Player</title>
 	<link rel="stylesheet" type="text/css" href="ui.css">
 	<script type="text/javascript" src='ui.js'></script>
 </head>
@@ -10,7 +10,7 @@
 	<div id='topbar'>
 		<img src="img/osu-logo.png" class='l logo' width='70'>
 		<div class='l osustat'>
-			<div class='osutitle'>Osu! Player</div>
+			<div class='osutitle'>Oss Player</div>
 		</div>
 		<div class='r'>
 			<div class='bz l searchbx'>
@@ -92,13 +92,13 @@
 						</div>
 			</div>
 			<div class='updatetx bz'>
-				<div id='opud'>Osu! Player is up to date v0.5</div>
+				<div id='opud'>Oss Player is up to date v0.5</div>
 				<div id='chfu'>Checking for updates...</div>
 				<div id='chfd'>Downloading 0%</div>
 				<div id='unow'>Update available <button class='updatenow'>Update now</button></div>
 			</div>
 			<div class='devbox'>
-				OsuPlayer v0.6 Developed by Rurigk &amp; KonkoJoy
+				OssPlayer v0.6 Developed by Rurigk &amp; KonkoJoy
 				<br>
 				<span style='-webkit-user-select: text;cursor: text;'>rurigkdev@gmail.com</span>
 				<br>
@@ -108,7 +108,7 @@
 	</div>
 	<div id='loadbox' class='loadbox nosel'>
 		<div class='loadboxc'>
-			<img src="img/pippi.jpg">
+			<img src="img/pippi.jpg" style="max-height: calc(100% - 80px);">
 			<div style='margin-top: 10px;font-size: 2em;'>LOADING...</div>
 		</div>
 	</div>
@@ -148,12 +148,10 @@
 		<div class='newsbox'>
 			<div class='closenews r'>&#xF00D;</div>
 			<div style='text-align: left;'>
-				<span style='font-size: 1.4em;'>Changes v0.6:</span><br>
-				Added - View in explorer button
-				Added - Custom user image
+				<span style='font-size: 1.4em;'>Changes v0.7:</span><br>
+				Added - Thumbnail generator
 
-				Fixed - Repeated songs on reload songs library
-				Fixed - Updater errors
+				Fixed - Huge memory usage (thumbnails solve this)
 			</div>
 		</div>
 	</div>
