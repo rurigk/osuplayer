@@ -732,8 +732,8 @@ function loadSongsx(fr){
 	for(song in songs){
 		playlists.main[playlists.main.length] = song;
 	}
-	showPlaylist(current_playlist);
 	loadPlaylists();
+	showPlaylist(current_playlist);
 	setTimeout(function(){
 		ui.loadbox.style.display = 'none';
 	},150)
@@ -1003,10 +1003,13 @@ function removePlaylist(name){
 }
 function loadPlaylists(){
 	try{
-		var plloaded = JSON.parse(fs.readFileSync('playlists',{encoding:'utf8'}));
+		var jsload = fs.readFileSync('playlists',{encoding:'utf8'});
+		var plloaded = JSON.parse(jsload);
 		for (var attrname in plloaded) { playlists[attrname] = plloaded[attrname]; }
 		sortPlaylists();
-	}catch(e){}
+	}catch(e){
+		console.log(e);
+	}
 }
 function savePlaylists(){
 	var plc = JSON.parse(JSON.stringify(playlists));
