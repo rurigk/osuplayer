@@ -760,6 +760,11 @@ function showPlaylist(name){
 			try{
 				fs.statSync(bgcachepath);
 				bgpath = bgcachepath;
+				bgpath = bgpath.replace(/#/g, '%23');
+				bgpath = bgpath.replace(/&/g, '&amp;');
+				bgpath = bgpath.replace(/"/g, '&quot;');
+				bgpath = bgpath.replace(/'/g, '&apos;');
+				bgpath = bgpath.replace(/\\/g, '/');
 			}catch(e){
 				try{
 					fs.statSync(bgpath);
