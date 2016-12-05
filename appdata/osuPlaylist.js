@@ -63,26 +63,26 @@ function getOsuFiles(fpath){
 	return files;
 }
 function getOsuFileData(fpath){
-	var dataIni = fs.readFileSync(fpath,{encoding:'utf8'});
-	var mapid = path.basename(path.dirname(fpath));
-	mapid = mapid.substr(0,mapid.indexOf(" "))
-	var nameRegex = /AudioFilename: ?(.+)/;
-	var titleRegex = /Title:(?: ?(.+))?/;
-	var titleRegexU = /TitleUnicode:(?: ?(.+))?/;
-	var artistRegex = /Artist:(?: ?(.+))?/;
-	var artistRegexU = /ArtistUnicode:(?: ?(.+))?/;
-	var creatorRegex = /Creator:(?: ?(.+))?/;
-	var bgRegex = /0,0,"(.+)"/;
-	var bgx = bgRegex.exec(dataIni);
-	var title = titleRegex.exec(dataIni);
-	var titleU = titleRegexU.exec(dataIni);
-	var artist = artistRegex.exec(dataIni);
-	var artistU = artistRegexU.exec(dataIni);
-	if(title == null || typeof title[1] == "undefined"){title = false;}
-	if(titleU == null || typeof titleU[1] == "undefined"){titleU = false;}
-	if(artist == null || typeof artist[1] == "undefined"){artist = false;}
-	if(artistU == null || typeof artistU[1] == "undefined"){artistU = false;}
 	try{
+		var dataIni = fs.readFileSync(fpath,{encoding:'utf8'});
+		var mapid = path.basename(path.dirname(fpath));
+		mapid = mapid.substr(0,mapid.indexOf(" "))
+		var nameRegex = /AudioFilename: ?(.+)/;
+		var titleRegex = /Title:(?: ?(.+))?/;
+		var titleRegexU = /TitleUnicode:(?: ?(.+))?/;
+		var artistRegex = /Artist:(?: ?(.+))?/;
+		var artistRegexU = /ArtistUnicode:(?: ?(.+))?/;
+		var creatorRegex = /Creator:(?: ?(.+))?/;
+		var bgRegex = /0,0,"(.+)"/;
+		var bgx = bgRegex.exec(dataIni);
+		var title = titleRegex.exec(dataIni);
+		var titleU = titleRegexU.exec(dataIni);
+		var artist = artistRegex.exec(dataIni);
+		var artistU = artistRegexU.exec(dataIni);
+		if(title == null || typeof title[1] == "undefined"){title = false;}
+		if(titleU == null || typeof titleU[1] == "undefined"){titleU = false;}
+		if(artist == null || typeof artist[1] == "undefined"){artist = false;}
+		if(artistU == null || typeof artistU[1] == "undefined"){artistU = false;}
 		var data = {
 			path : path.dirname(fpath),
 			file : nameRegex.exec(dataIni)[1],
