@@ -72,10 +72,9 @@ body{
 
 .osutitle{
 	cursor: default;
-	font-family: 'Verdana';
 	color: #FFF;
 	font-size: 1.8em;
-	margin-top: 4px;
+	margin-top: 8px;
 }
 
 .playbar{

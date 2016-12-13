@@ -1108,16 +1108,16 @@ function installLogOnServer(){
 }
 
 function checkUpdates(){
+	ui.uptodate.style.display = 'none';
+	ui.updatech.style.display = 'none';
+	ui.updateav.style.display = 'block';
 	if(debug){
 		return false;
 	}
 	/*
 		Consulta al servidor de nueva version
 	*/
-	ui.updateav.style.display = 'none';
-	ui.uptodate.style.display = 'none';
-	ui.updatech.style.display = 'block';
-		var options = {
+		/*var options = {
 			host: 'osumexico.com',
 			path: '/',
 			port: '59150',
@@ -1143,7 +1143,7 @@ function checkUpdates(){
 		});
 		//This is the data we are posting, it needs to be a string or a buffer
 		req.write('');
-		req.end();
+		req.end();*/
 }
 function downloadAndUpdate(){
 	var fileurl = 'http://github.com/rurigk/osuplayer/archive/'+branch+'.zip';
