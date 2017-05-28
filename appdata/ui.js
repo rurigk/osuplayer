@@ -38,7 +38,7 @@ var fsextra = require('fs.extra');
 var path = require('path');
 var http = require('http');
 var httpfr = require('follow-redirects').http;
-var gui = require('nw.gui');
+var gui = nw;
 var extract = require('extract-zip');
 var os = require("os");
 var exec = require('child_process').exec;
@@ -57,7 +57,9 @@ var playlists = {
 var current_playlist_playing = "main";
 var current_playlist = "main";
 
-var audio = new Audio();
+var audio = new AudioPlayer();
+
+//source.playbackRate.value = 2;
 
 path.split=function(w){
 	w=w.split('/');
@@ -96,9 +98,9 @@ settings.usecache = (typeof localStorage['usecache'] != "undefined")? strtobool(
 settings.findtitle = (typeof localStorage['findtitle'] != "undefined")? strtobool(localStorage['findtitle']) : true;
 settings.findartist = (typeof localStorage['findartist'] != "undefined")? strtobool(localStorage['findartist']) : true;
 settings.findcreator = (typeof localStorage['findcreator'] != "undefined")? strtobool(localStorage['findcreator']) : false;
-audio.volume = (typeof localStorage['volume'] != "undefined")? parseFloat(localStorage['volume']) : 1;
+audio.SetVolume( (typeof localStorage['volume'] != "undefined")? parseFloat(localStorage['volume']) : 1 );
 //Main window
-main_window=gui.Window.get(0);
+main_window=gui.Window.get();
 main_window.maximized=false;
 main_window.on('maximize',function(){
 	main_window.maximized=true;
@@ -124,6 +126,8 @@ var scrollflag = false;
 
 var soundmv = false;
 var trackmv = false;
+
+var searchTimer = null;
 window.addEventListener('load',function(){
 	loadElements();
 	installLogOnServer();
@@ -139,11 +143,11 @@ window.addEventListener('load',function(){
 		clickManager(e);
 	})
 	window.addEventListener("mousedown",function(e){
-		if(is(e,"#trackbar") && !isNaN(audio.duration)){
+		if(is(e,"#trackbar") && !isNaN(audio.GetDuration())){
 			trackmv = true;
 			trackbar_width = parseInt(getComputedStyle(ui.trackbar, null).width);
 			var time = 100*(e.layerX/trackbar_width);
-			audio.currentTime = ((audio.duration / 100) * time);
+			audio.Seek( ((audio.GetDuration() / 100) * time) );
 		}
 		if(is(e,'#soundbar')){
 			soundmv = true;
@@ -153,7 +157,7 @@ window.addEventListener('load',function(){
 			tsv = 100-ts;
 			ui.soundbar.style.backgroundSize = "11px "+tsv+"px";
 			ui.soundbar.style.backgroundPosition = "9px "+(ts+10)+"px";
-			audio.volume = tsv/100;
+			audio.SetVolume(tsv/100);
 			localStorage['volume'] = audio.volume;
 		}
 	})
@@ -165,7 +169,7 @@ window.addEventListener('load',function(){
 		if(trackmv){
 			trackbar_width = parseInt(getComputedStyle(ui.trackbar, null).width);
 			var time = 100*(e.layerX/trackbar_width);
-			audio.currentTime = ((audio.duration / 100) * time);
+			audio.Seek( ((audio.GetDuration() / 100) * time) );
 		}
 	})
 	ui.soundbar.addEventListener('mousemove',function(e){
@@ -176,7 +180,7 @@ window.addEventListener('load',function(){
 			tsv = 100-ts;
 			ui.soundbar.style.backgroundSize = "11px "+tsv+"px";
 			ui.soundbar.style.backgroundPosition = "9px "+(ts+10)+"px";
-			audio.volume = tsv/100;
+			audio.SetVolume( tsv/100 );
 			localStorage['volume'] = audio.volume;
 		}
 	})
@@ -194,12 +198,12 @@ window.addEventListener('load',function(){
 	});
 	window.addEventListener('keypress',function(e){
 		if(e.keyCode == 32 && document.activeElement.nodeName != "INPUT"){
-			if(audio.src != ''){
+			if(audio.IsReady()){
 				if(audio.paused){
-					audio.play();
+					audio.Play();
 					setPlayerState(true);
 				}else{
-					audio.pause();
+					audio.Pause();
 					setPlayerState(false);
 				}
 			}
@@ -224,12 +228,12 @@ var NextTrackShortcut = new gui.Shortcut(globalMediaNextTrack);
 var PrevTrackShortcut = new gui.Shortcut(globalMediaPrevTrack);
 
 PlayPauseShortcut.on('active', function() {
-	if(audio.src != ''){
+	if(audio.IsReady()){
 		if(audio.paused){
-			audio.play();
+			audio.Play();
 			setPlayerState(true);
 		}else{
-			audio.pause();
+			audio.Pause();
 			setPlayerState(false);
 		}
 	}
@@ -266,7 +270,8 @@ function updateThumbnails(){
 		var offset = ui.songslist.childNodes[i].offsetTop;
 		var child = ui.songslist.childNodes[i].querySelector('.bgimg');
 		if(offset > scroll - 500 && offset < scroll+hview+500){
-			child.style.backgroundImage = "url(\""+child.getAttribute('imgurl')+"\")";
+			var bgpath = atobU(child.getAttribute('imgurl'));
+			child.style.backgroundImage = "url(\""+bgpath+"\")";
 		}else{
 			child.style.backgroundImage = "";
 		}
@@ -313,13 +318,13 @@ function clickManager(e){
 		playerUi();
 	}
 	if(is(e,'#play')){
-		if(audio.src != ""){
-			audio.play();
+		if(audio.IsReady()){
+			audio.Play();
 			setPlayerState(true);
 		}
 	}
 	if(is(e,'#pause')){
-			audio.pause();
+			audio.Pause();
 			setPlayerState(false);
 	}
 	if(is(e,'#prev')){
@@ -560,13 +565,20 @@ function clickManager(e){
 		downloadAndUpdate();
 	}
 	if(is(e,'.nr-time')){
-		audio.playbackRate = 1;
+		audio.SetPlaybackRate(1);
+		audio.PreservePitch(true);
 	}
 	if(is(e,'.ht-time')){
-		audio.playbackRate = 0.75
+		audio.SetPlaybackRate(0.75);
+		audio.PreservePitch(true);
 	}
 	if(is(e,'.dt-time')){
-		audio.playbackRate = 1.5
+		audio.SetPlaybackRate(1.5);
+		audio.PreservePitch(true);
+	}
+	if(is(e,'.nc-time')){
+		audio.SetPlaybackRate(1.5);
+		audio.PreservePitch(false);
 	}
 	if(is(e,'#songimg')){
 		if(e.target.getAttribute('username') != ""){
@@ -590,7 +602,7 @@ function clickManager(e){
 	}
 }
 
-audio.addEventListener('ended',function(){
+audio.audioElement.addEventListener('ended',function(){
 	if(player.shuffle){
 		randomSong();
 		return;
@@ -607,8 +619,8 @@ audio.addEventListener('ended',function(){
 		}
 	}
 })
-audio.addEventListener('timeupdate',function(){
-	ui.trackbar.style.backgroundSize = (100 * (audio.currentTime / audio.duration))+"% 100%";
+audio.audioElement.addEventListener('timeupdate',function(){
+	ui.trackbar.style.backgroundSize = (100 * (audio.GetCurrentTime() / audio.GetDuration()))+"% 100%";
 })
 
 function loadElements(){
@@ -643,7 +655,21 @@ function loadElements(){
 
 	ui.searchbox = document.getElementById('searchbox');
 	ui.searchbox.addEventListener('input',function(){
-		search(ui.searchbox.value);
+		if(ui.searchbox.value != ""){
+			if(searchTimer != null){
+				clearTimeout(searchTimer);
+				searchTimer = setTimeout(function(){
+					search(ui.searchbox.value);
+				},400);
+			}else{
+				searchTimer = setTimeout(function(){
+					search(ui.searchbox.value);
+				},400);
+			}
+		}else{
+			if(searchTimer != null){clearTimeout(searchTimer);}
+			search(ui.searchbox.value);
+		}
 	})
 
 	ui.loadbox = document.getElementById('loadbox');
@@ -755,38 +781,35 @@ function showPlaylist(name){
 		var songname = playlists[name][i];
 		if(cachesongs[songname].backgrounds.length > 0){
 			var basepath = cachesongs[songname].path;
-			var bgpath = path.join(basepath,cachesongs[songname].backgrounds[0]);
+			var bgfilename = cachesongs[songname].backgrounds[0];
+			var bgfile = path.join(basepath,bgfilename);
+			var bgpath = path.join(basepath,bgfilename.replace(/%/g, '%25'));
 			var bgcachepath = path.join(process.cwd(),"bgcache",cachesongs[songname].mapid+".jpg");
 			try{
 				fs.statSync(bgcachepath);
 				bgpath = bgcachepath;
 				bgpath = bgpath.replace(/#/g, '%23');
-				bgpath = bgpath.replace(/&/g, '&amp;');
-				bgpath = bgpath.replace(/"/g, '&quot;');
-				bgpath = bgpath.replace(/'/g, '&apos;');
 				bgpath = bgpath.replace(/\\/g, '/');
 			}catch(e){
 				try{
-					fs.statSync(bgpath);
+					fs.statSync(bgfile);
 					bgpath = bgpath.replace(/#/g, '%23');
 					thumbnailQueue[cachesongs[songname].mapid]={
 						imgpath:bgpath,
 						mapid:cachesongs[songname].mapid
 					}
-					bgpath = bgpath.replace(/&/g, '&amp;');
-					bgpath = bgpath.replace(/"/g, '&quot;');
-					bgpath = bgpath.replace(/'/g, '&apos;');
+					bgpath = bgPathEncoded;
 					bgpath = bgpath.replace(/\\/g, '/');
 				}catch(e){
-					var bgpath = "img/osulogo-gray.svg";
+					var bgpath = process.cwd()+"/appdata/img/osulogo-gray.svg";
 				}
 			}
 		}else{
-			var bgpath = "img/osulogo-gray.svg";
+			var bgpath = process.cwd()+"/appdata/img/osulogo-gray.svg";
 		}
 		var cca =
 		"<div class='song nosel' hash='"+btoaU(songname)+"' titlesong='"+btoaU(cachesongs[songname].title)+"' artistsong='"+btoaU(cachesongs[songname].artist)+"' creatorsong='"+btoaU(cachesongs[songname].creator)+"'>"+
-		"	<div class='bgimg l' imgurl='"+bgpath+"' hash='"+btoaU(songname)+"'></div>"+
+		"	<div class='bgimg l' imgurl='"+btoaU("file://"+bgpath)+"' hash='"+btoaU(songname)+"'></div>"+
 		"	<div class='songinfo l "+(current_playlist != 'main' ? 'specialsn':'')+"'>"+
 		"		<div class='songtitle'>"+cachesongs[songname].title+"</div>"+
 		"		<div class='songartist'>"+cachesongs[songname].artist+"</div>"+
@@ -796,7 +819,7 @@ function showPlaylist(name){
 		"		<div class='showinexplorer'>&#xF07B;</div>"+
 		"		<div class='addtoplaylist'>&#xF067;</div>"+
 		(name == 'main'? '':"		<div class='snoptions'>&#xF0C9;</div>")+
-		//"		<div class='maplink' mapid='"+cachesongs[songname].mapid+"'></div>"+
+		"		<div class='maplink' mapid='"+cachesongs[songname].mapid+"'></div>"+
 		"	</div>"+
 		"</div>";
 		cod += cca;
@@ -886,9 +909,11 @@ function playTrack(name){
 			}
 		};
 	}
-	audio.src = songpath;
-	audio.play();
-	setPlayerState(true);
+	audio.Stop();
+	audio.Load(encodeURI(songpath), false,function(){
+		audio.Play();
+		setPlayerState(true);
+	});
 }
 
 function nextTrack(){
@@ -1261,7 +1286,7 @@ function showNews(){
 
 function createThumbnail(imagedd,mapid){
 		var image = document.createElement("img");
-		image.src = imagedd;
+		image.src = "file://"+imagedd;
 		image.onload = function(){
 			var canvas = document.createElement('canvas');
 			var context = canvas.getContext('2d');

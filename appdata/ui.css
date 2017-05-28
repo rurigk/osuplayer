@@ -217,7 +217,7 @@ body{
 }
 .timebts{
 	display: inline-block;
-	width: 100px;
+	width: 130px;
 }
 .timebts div{
 	font-size: 0.8em;
@@ -235,6 +235,9 @@ body{
 }
 .dt-time{
 	background-color: #512A79;
+}
+.nc-time{
+	background-color: #383ba2;
 }
 
 #opendir{
