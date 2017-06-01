@@ -47,7 +47,7 @@
 				<div class='l nr-time'>Normal</div>
 				<div class='l ht-time'>HT</div>
 				<div class='l dt-time'>DT</div>
-				<div class='l nc-time'>NC</div>
+				<!--div class='l nc-time'>NC</div-->
 			</div>
 		</div>
 		<div class='bz r controlbox'>
@@ -70,7 +70,11 @@
 				Osu user name: <input id='osuname' type='text'><div id='saveuser'>&#xF00C;</div>
 			</div>
 			<div class='st-sec'>
-				Osu songs path: <input id='osupath' type='text'><div id='savelocation'>&#xF00C;</div>
+				Osu songs path: 
+				<input id='osupath' type='text' >
+				<input id="pathpicker" type="file" nwdirectory>
+				<div id='savelocation'>&#xF00C;</div>
+				<div id='pickpath'>&#xf07b;</div>
 			</div>
 			<div class='st-sec' style='padding-top: 4px;'>
 				Use songs cache: <div class="switch bz">
@@ -94,13 +98,13 @@
 						</div>
 			</div>
 			<div class='updatetx bz'>
-				<div id='opud'>Oss Player is up to date v0.7</div>
+				<div id='opud'>Oss Player is up to date v0.8</div>
 				<div id='chfu'>Checking for updates...</div>
 				<div id='chfd'>Downloading 0%</div>
 				<div id='unow'>Force update <button class='updatenow'>Update now</button></div>
 			</div>
 			<div class='devbox'>
-				OssPlayer v0.6 Developed by Rurigk &amp; KonkoJoy &lt;3
+				OssPlayer v0.8 Developed by Rurigk &amp; KonkoJoy &lt;3
 				<br>
 				<span style='-webkit-user-select: text;cursor: text;'>rurigkdev@gmail.com</span>
 				<br>

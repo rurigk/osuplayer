@@ -395,7 +395,12 @@ body{
 	margin-bottom: 4px;
 }
 
-#osupath, #osuname{
+#osupath{
+	outline: none;
+	font-size: 1.1em;
+	width: calc(100% - 185px);
+}
+#osuname{
 	outline: none;
 	font-size: 1.1em;
 	width: calc(100% - 150px);
@@ -410,6 +415,21 @@ body{
 	margin-left: 5px;
 	border-radius: 4px;
 	cursor: pointer;
+}
+
+#pickpath{
+	float: right;
+	display: inline-block;
+	background-color: #ff730c;
+	color: #FFF;
+	padding: 4px;
+	margin-left: 5px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+#pathpicker{
+	display: none;
 }
 
 .closesettings{

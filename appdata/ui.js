@@ -44,9 +44,10 @@ var os = require("os");
 var exec = require('child_process').exec;
 var osu = require('./osuPlaylist.js');
 var spider = require('./osuspider.js');
+var nodetaglib = require('nodetaglib');
 
 var debug = true;
-var version = 0.7;
+var version = 0.8;
 var branch = "RurigkDev";
 
 var cachesongs = {};
@@ -185,8 +186,8 @@ window.addEventListener('load',function(){
 		}
 	})
 	window.addEventListener('keydown', function(e){
-		if(e.keyIdentifier === 'F5' && debug){window.location.reload();}
-		if(e.keyIdentifier === 'F12' && debug){main_window.showDevTools();}
+		if(e.key === 'F5' && debug){window.location.reload();}
+		if(e.key === 'F12' && debug){main_window.showDevTools();}
 		if(e.keyCode == 16){keyh.shift=true;}
 		if(e.keyCode == 17){keyh.ctrl=true;}
 		if(e.keyCode == 18){keyh.altk=true;}
@@ -600,6 +601,10 @@ function clickManager(e){
 	if(is(e,'#openrepo')){
 		gui.Shell.openExternal("https://github.com/rurigk/osuplayer");
 	}
+
+	if(is(e,'#pickpath')){
+		document.getElementById('pathpicker').click();
+	}
 }
 
 audio.audioElement.addEventListener('ended',function(){
@@ -709,6 +714,17 @@ function loadElements(){
 	}else{
 		ui.songimg.setAttribute('username','');
 	}
+	ui.pathpicker = document.getElementById('pathpicker');
+	ui.pathpicker.addEventListener('change',function(){
+		if(path.win32.basename(ui.pathpicker.value) == "Songs"){
+			ui.locationbox.value = ui.pathpicker.value;
+			localStorage['location'] = ui.locationbox.value;
+			ui.settingsbox.style.display = 'none';
+			loadSongs();
+		}else{
+			alert(ui.pathpicker.value+"\nis invalid Songs path\n\nPlease select the 'Songs' directory inside of your installation of osu!");
+		}
+	})
 }
 function loadSongs(fr){
 	ui.loadbox.style.display = 'flex';
@@ -728,11 +744,13 @@ function loadSongsx(fr){
 	try{
 		fs.statSync(localStorage['location']);
 		ui.locationbox.value = localStorage['location'];
+		ui.pathpicker.value = localStorage['location'];
 	}catch(e){
 		ui.loadbox.style.display = 'none';
 		ui.settingsbox.style.display = 'flex';
 		if(!debug){
 			ui.locationbox.value = '';
+			ui.pathpicker.value = '';
 		}
 		return false;
 	}
@@ -811,9 +829,9 @@ function showPlaylist(name){
 		"<div class='song nosel' hash='"+btoaU(songname)+"' titlesong='"+btoaU(cachesongs[songname].title)+"' artistsong='"+btoaU(cachesongs[songname].artist)+"' creatorsong='"+btoaU(cachesongs[songname].creator)+"'>"+
 		"	<div class='bgimg l' imgurl='"+btoaU("file://"+bgpath)+"' hash='"+btoaU(songname)+"'></div>"+
 		"	<div class='songinfo l "+(current_playlist != 'main' ? 'specialsn':'')+"'>"+
-		"		<div class='songtitle'>"+cachesongs[songname].title+"</div>"+
-		"		<div class='songartist'>"+cachesongs[songname].artist+"</div>"+
-		"		<div class='songmapper'>"+cachesongs[songname].creator+"</div>"+
+		"		<div class='songtitle'>"+escapeHtml(cachesongs[songname].title)+"</div>"+
+		"		<div class='songartist'>"+escapeHtml(cachesongs[songname].artist)+"</div>"+
+		"		<div class='songmapper'>"+escapeHtml(cachesongs[songname].creator)+"</div>"+
 		"	</div>"+
 		"	<div class='r songoptions'>"+
 		"		<div class='showinexplorer'>&#xF07B;</div>"+
@@ -1338,4 +1356,13 @@ function genthumbnails(){
 		createThumbnail(image,mapid);
 		delete thumbnailQueue[keys[0]];
 	}
+}
+
+function escapeHtml(unsafe) {
+	return unsafe
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;");
 }
