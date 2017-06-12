@@ -44,7 +44,7 @@ var os = require("os");
 var exec = require('child_process').exec;
 var osu = require('./osuPlaylist.js');
 var spider = require('./osuspider.js');
-var nodetaglib = require('nodetaglib');
+//var nodetaglib = require('nodetaglib');
 
 var debug = true;
 var version = 0.8;
@@ -744,13 +744,13 @@ function loadSongsx(fr){
 	try{
 		fs.statSync(localStorage['location']);
 		ui.locationbox.value = localStorage['location'];
-		ui.pathpicker.value = localStorage['location'];
+		//ui.pathpicker.value = localStorage['location'];
 	}catch(e){
 		ui.loadbox.style.display = 'none';
 		ui.settingsbox.style.display = 'flex';
 		if(!debug){
 			ui.locationbox.value = '';
-			ui.pathpicker.value = '';
+			//ui.pathpicker.value = '';
 		}
 		return false;
 	}
