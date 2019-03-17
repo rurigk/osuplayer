@@ -12,7 +12,7 @@ const { app, BrowserWindow } = require('electron')
       minWidth: 920,
       minheight: 600,
       frame: false,
-      icon:'',
+      icon: 'player/img/ossicon-32.ico',
       webPreferences:{
         backgroundThrottling:false
       }
@@ -22,7 +22,7 @@ const { app, BrowserWindow } = require('electron')
     win.loadFile('./player/index.html')
   
     // Open the DevTools.
-    win.webContents.openDevTools()
+   // win.webContents.openDevTools()
   
     // Emitted when the window is closed.
     win.on('closed', () => {

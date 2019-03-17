@@ -170,7 +170,7 @@ body{
 	width: calc(100% - 210px);
 }
 .specialsn{
-	width: calc(100% - 210px);
+	width: calc(100% - 240px);
 }
 .songtitle{
 	font-size: 1.3em;
@@ -724,11 +724,12 @@ body{
 }
 #cplaylistsh{display: none;}
 .devbox{
-	margin-top: 2px;
+	margin-top: 40px;
 }
 .updatetx{
 	height: 48px;
 	padding-top: 4px;
+	display: none;
 }
 #chfu,#opud,#chfd{
 	display: none;

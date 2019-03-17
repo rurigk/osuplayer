@@ -47,6 +47,7 @@ var spider = require('./osuspider.js');
 
 var Remote = require('electron').remote;
 var Shell = require('electron').shell
+const { dialog } = require('electron').remote
 
 var OssPlayer = {
 	version: 2.0,
@@ -479,7 +480,7 @@ function clickManager(e){
 		ui.snoptions.style.display = 'none';
 	}
 	if(is(e,'.mainlistsh')){
-		current_playlist = 'main';
+		//current_playlist = 'main';
 		showPlaylist('main');
 	}
 	if(is(e,'.playlistsh')){
@@ -541,8 +542,8 @@ function clickManager(e){
 		showPlaylists();
 	}
 	if(is(e,'#cplaylistsh')){
-		showPlaylist(current_playlist_playing);
 		current_playlist = current_playlist_playing;
+		showPlaylist(current_playlist_playing);
 	}
 	if(is(e,'.bgimgpl')){
 		var plname = closest(e,'.playlist').getAttribute('plname')
@@ -623,7 +624,7 @@ function clickManager(e){
 	}
 
 	if(is(e,'#pickpath')){
-		document.getElementById('pathpicker').click();
+		PickPath();
 	}
 }
 
@@ -734,18 +735,24 @@ function loadElements(){
 	}else{
 		ui.songimg.setAttribute('username','');
 	}
-	ui.pathpicker = document.getElementById('pathpicker');
-	ui.pathpicker.addEventListener('change',function(){
-		if(path.win32.basename(ui.pathpicker.value) == "Songs"){
-			ui.locationbox.value = ui.pathpicker.value;
+}
+
+function PickPath()
+{
+	var dirPaths = dialog.showOpenDialog({ properties: ['openDirectory'] });
+	if(typeof dirPaths != 'undefined')
+	{
+		if(path.win32.basename(dirPaths[0]) == "Songs"){
+			ui.locationbox.value = dirPaths[0];
 			localStorage['location'] = ui.locationbox.value;
 			ui.settingsbox.style.display = 'none';
 			loadSongs();
 		}else{
-			alert(ui.pathpicker.value+"\nis invalid Songs path\n\nPlease select the 'Songs' directory inside of your installation of osu!");
+			alert(dirPaths[0]+"\nis invalid Songs path\n\nPlease select the 'Songs' directory inside of your installation of osu!");
 		}
-	})
+	}
 }
+
 function loadSongs(fr){
 	ui.loadbox.style.display = 'flex';
 	setTimeout(function(){
