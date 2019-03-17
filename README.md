@@ -1,7 +1,8 @@
 
 ## OssPlayer
 
-Music player for osu! songs
+Music player for osu! songs     
+
 [![ko-fi](https://www.ko-fi.com/img/donate_sm.png)](https://ko-fi.com/rurigk)
 
 Download build at [Releases](https://github.com/rurigk/osuplayer/releases)
