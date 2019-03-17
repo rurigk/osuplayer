@@ -1,25 +1,21 @@
 {
-	"main": "appdata/index.html",
+	"main": "player.js",
 	"name": "OsuPlayer",
+	"version": "2.0.0",
+	"description": "Oss! Player",
 	"single-instance": true,
-	"author": "Rurigk <rurigkdev@gmail.com>",
-	"window": {
-		"title": "Osu! Player",
-		"icon": "appdata/osu.png",
-		"position": "center",
-		"toolbar": false,
-		"frame": false,
-		"width": 1095,
-		"height": 660,
-		"min_width": 920,
-		"min_height": 600
-	},
-	"dependencies" : {
+	"dependencies": {
 		"extract-zip" : "latest",
 		"follow-redirects" : "latest",
 		"fs.extra" : "latest"
- 	},
- 	"repository" : { 
+	},
+	"chromium-args": "--password-store=basic",
+	"keywords": [
+		"music",
+		"player"
+	],
+	"author": "Rurigk <rurigkdev@gmail.com>",
+	"repository" : { 
 		"type" : "git", "url" : "https://github.com/rurigk/osuplayer.git"
 	}
 }

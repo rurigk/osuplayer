@@ -38,7 +38,6 @@ var fsextra = require('fs.extra');
 var path = require('path');
 var http = require('http');
 var httpfr = require('follow-redirects').http;
-var gui = nw;
 var extract = require('extract-zip');
 var os = require("os");
 var exec = require('child_process').exec;
@@ -46,9 +45,21 @@ var osu = require('./osuPlaylist.js');
 var spider = require('./osuspider.js');
 //var nodetaglib = require('nodetaglib');
 
+var Remote = require('electron').remote;
+var Shell = require('electron').shell
+
+var OssPlayer = {
+	version: 2.0,
+	remote: Remote,
+	window: Remote.getCurrentWindow(),
+	basePath: Remote.app.getAppPath(),
+	userDataPath: Remote.app.getPath('userData'),
+	UI: {}
+};
+
 var debug = true;
-var version = 0.8;
-var branch = "RurigkDev";
+var version = 2.0;
+var branch = "master";
 
 var cachesongs = {};
 
@@ -84,11 +95,11 @@ try{
 		alert("bgcache is not a directory, please delete bgcache and restart oss player");
 	}
 }catch(e){
-	fs.mkdir("bgcache");
+	fs.mkdirSync("bgcache");
 }
 
 var settings = {};
-var main_window = {};
+var windowState = {};
 var tabs = {};
 var thumbnailQueue = {};
 
@@ -101,19 +112,7 @@ settings.findartist = (typeof localStorage['findartist'] != "undefined")? strtob
 settings.findcreator = (typeof localStorage['findcreator'] != "undefined")? strtobool(localStorage['findcreator']) : false;
 audio.SetVolume( (typeof localStorage['volume'] != "undefined")? parseFloat(localStorage['volume']) : 1 );
 //Main window
-main_window=gui.Window.get();
-main_window.maximized=false;
-main_window.on('maximize',function(){
-	main_window.maximized=true;
-	//resizeWEvent();
-})
-main_window.on('unmaximize',function(){
-	main_window.maximized=false;
-	//resizeWEvent();
-})
-main_window.on('resize',function(){
-	//resizeWEvent();
-})
+windowState.maximized=false;
 
 keyh={};
 keyh.shift=false;
@@ -187,7 +186,7 @@ window.addEventListener('load',function(){
 	})
 	window.addEventListener('keydown', function(e){
 		if(e.key === 'F5' && debug){window.location.reload();}
-		if(e.key === 'F12' && debug){main_window.showDevTools();}
+		//if(e.key === 'F12' && debug){main_window.showDevTools();}
 		if(e.keyCode == 16){keyh.shift=true;}
 		if(e.keyCode == 17){keyh.ctrl=true;}
 		if(e.keyCode == 18){keyh.altk=true;}
@@ -223,7 +222,7 @@ var globalMediaNextTrack = {
 var globalMediaPrevTrack = {
 	key : "MediaPrevTrack"
 };
-
+/*
 var PlayPauseShortcut = new gui.Shortcut(globalMediakeyPlay);
 var NextTrackShortcut = new gui.Shortcut(globalMediaNextTrack);
 var PrevTrackShortcut = new gui.Shortcut(globalMediaPrevTrack);
@@ -260,7 +259,7 @@ PrevTrackShortcut.on('failed', function(msg) {
 gui.App.registerGlobalHotKey(PlayPauseShortcut);
 gui.App.registerGlobalHotKey(NextTrackShortcut);
 gui.App.registerGlobalHotKey(PrevTrackShortcut);
-
+*/
 
 function updateThumbnails(){
 	ui.pldialog.style.display = 'none';
@@ -279,12 +278,33 @@ function updateThumbnails(){
 	};
 }
 
+OssPlayer.window.on('maximize',function(){
+	windowState.maximized=true;
+})
+OssPlayer.window.on('unmaximize',function(){
+	windowState.maximized=false;
+})
 function clickManager(e){
-	if(is(e,'.closewindow')){window.close();}
-	if(is(e,'.maxwindow')){if(!main_window.maximized){main_window.maximize();}else{main_window.maximized=false;main_window.unmaximize();}}
-	if(is(e,'.minwindow')){main_window.minimize();}
+
+	if(is(e,'.closewindow'))
+	{
+		OssPlayer.window.close();
+	}
+	if(is(e,'.maxwindow')){
+		if(!windowState.maximized)
+		{
+			OssPlayer.window.maximize();
+		}else{
+			windowState.maximized=false;
+			OssPlayer.window.unmaximize();
+		}
+	}
+	if(is(e,'.minwindow'))
+	{
+		OssPlayer.window.minimize();
+	}
 	if(is(e,'.maplink')){
-		gui.Shell.openExternal("https://osu.ppy.sh/s/"+e.target.getAttribute('mapid'))
+		Shell.openExternal("https://osu.ppy.sh/s/"+e.target.getAttribute('mapid'))
 	}
 	if(is(e,'.bgimg')){
 		var name = atobU(e.target.getAttribute('hash'));
@@ -583,7 +603,7 @@ function clickManager(e){
 	}
 	if(is(e,'#songimg')){
 		if(e.target.getAttribute('username') != ""){
-			gui.Shell.openExternal("https://osu.ppy.sh/u/"+e.target.getAttribute('username'));
+			Shell.openExternal("https://osu.ppy.sh/u/"+e.target.getAttribute('username'));
 		}
 	}
 	if(is(e,'#saveuser')){
@@ -591,7 +611,7 @@ function clickManager(e){
 		if(typeof localStorage['user'] != "undefined" && localStorage['user'] != ""){
 			spider.getUserData(localStorage['user'],function(data){
 				ui.songimg.src = data.image;
-				ui.songimg.setAttribute('username',data.name);
+				ui.songimg.setAttribute('username',localStorage['user']);
 			});
 		}else{
 			ui.songimg.src = "img/avatar-guest.png";
@@ -599,7 +619,7 @@ function clickManager(e){
 		}
 	}
 	if(is(e,'#openrepo')){
-		gui.Shell.openExternal("https://github.com/rurigk/osuplayer");
+		Shell.openExternal("https://github.com/rurigk/osuplayer");
 	}
 
 	if(is(e,'#pickpath')){
@@ -709,7 +729,7 @@ function loadElements(){
 	if(typeof localStorage['user'] != "undefined" && localStorage['user'] != ""){
 		spider.getUserData(localStorage['user'],function(data){
 			ui.songimg.src = data.image;
-			ui.songimg.setAttribute('username',data.name);
+			ui.songimg.setAttribute('username',localStorage['user']);
 		});
 	}else{
 		ui.songimg.setAttribute('username','');
@@ -767,7 +787,7 @@ function loadSongsx(fr){
 			songs[key] = songsu[key];
 		});
 		cachesongs = songs;
-		fs.writeFile('songs.cache', JSON.stringify(cachesongs), 'utf8');
+		fs.writeFileSync('songs.cache', JSON.stringify(cachesongs), 'utf8');
 	}else{
 		var songs = JSON.parse(fs.readFileSync('songs.cache',{encoding:'utf8'}));
 		cachesongs = songs;
@@ -802,7 +822,7 @@ function showPlaylist(name){
 			var bgfilename = cachesongs[songname].backgrounds[0];
 			var bgfile = path.join(basepath,bgfilename);
 			var bgpath = path.join(basepath,bgfilename.replace(/%/g, '%25'));
-			var bgcachepath = path.join(process.cwd(),"bgcache",cachesongs[songname].mapid+".jpg");
+			var bgcachepath = path.join(OssPlayer.basePath,"bgcache",cachesongs[songname].mapid+".jpg");
 			try{
 				fs.statSync(bgcachepath);
 				bgpath = bgcachepath;
@@ -819,15 +839,18 @@ function showPlaylist(name){
 					bgpath = bgPathEncoded;
 					bgpath = bgpath.replace(/\\/g, '/');
 				}catch(e){
-					var bgpath = process.cwd()+"/appdata/img/osulogo-gray.svg";
+					var bgpath = path.join(OssPlayer.basePath, "/player/img/osulogo-gray.svg");
+					bgpath = bgpath.replace(/\\/g, '/');
 				}
 			}
 		}else{
-			var bgpath = process.cwd()+"/appdata/img/osulogo-gray.svg";
+			var bgpath = path.join(OssPlayer.basePath, "/player/img/osulogo-gray.svg");
+			bgpath = bgpath.replace(/\\/g, '/');
 		}
+
 		var cca =
 		"<div class='song nosel' hash='"+btoaU(songname)+"' titlesong='"+btoaU(cachesongs[songname].title)+"' artistsong='"+btoaU(cachesongs[songname].artist)+"' creatorsong='"+btoaU(cachesongs[songname].creator)+"'>"+
-		"	<div class='bgimg l' imgurl='"+btoaU("file://"+bgpath)+"' hash='"+btoaU(songname)+"'></div>"+
+		"	<div class='bgimg l' imgurl='"+btoaU(bgpath)+"' hash='"+btoaU(songname)+"'></div>"+
 		"	<div class='songinfo l "+(current_playlist != 'main' ? 'specialsn':'')+"'>"+
 		"		<div class='songtitle'>"+escapeHtml(cachesongs[songname].title)+"</div>"+
 		"		<div class='songartist'>"+escapeHtml(cachesongs[songname].artist)+"</div>"+
@@ -928,7 +951,7 @@ function playTrack(name){
 		};
 	}
 	audio.Stop();
-	audio.Load(encodeURI(songpath), false,function(){
+	audio.Load(songpath, false,function(){
 		audio.Play();
 		setPlayerState(true);
 	});
@@ -1063,7 +1086,7 @@ function savePlaylists(){
 	var plc = JSON.parse(JSON.stringify(playlists));
 	delete plc.main;
 	var ts = JSON.stringify(plc);
-	fs.writeFile('playlists', ts, 'utf8');
+	fs.writeFileSync('playlists', ts, 'utf8');
 }
 
 function search(w){
@@ -1236,9 +1259,9 @@ function moveFilesUp(dr){
 			if(this.endxf){
 				fsextra.rmrfSync('osuplayer-'+branch);
 				fs.unlink('update.zip');
-				this.main_window.reloadDev();
+				//this.main_window.reloadDev();
 			}
-		}.bind({endxf:(i == files.length-1),main_window:main_window}));
+		}.bind({endxf:(i == files.length-1)}));
 	};
 }
 

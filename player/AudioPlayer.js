@@ -41,7 +41,8 @@ AudioPlayer.prototype.Load = function(f,autoplay,callback) {
 	this.audioElement.oncanplaythrough = function(){
 		this._SetHTMLAudioReady();
 	}.bind(this);
-	this.audioElement.src = "file://"+f;
+	filePath = f.replace(/\\/g, '/');
+	this.audioElement.src = "file://"+filePath;
 	if(this.webaudio){
 		this.buffer = null;
 		var bf = fs.readFileSync(f);
@@ -169,7 +170,7 @@ AudioPlayer.prototype.IsReady = function() {
 var a = null;
 function TestAudio(){
 	a = new AudioPlayer()
-	a.Load("/home/rurigk/.wine/drive_c/users/rurigk/Local Settings/Application Data/osu!/Songs/306591 HoneyWorks - Miraizu featAida Miou(CV-Toyosaki Aki)/14.Miraizu.mp3")
+	a.Load("")
 	a.onReady = function(){
 		console.log("Ready");
 		a.Play();
