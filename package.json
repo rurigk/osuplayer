@@ -12,7 +12,8 @@
 		"fs.extra": "latest"
 	},
 	"devDependencies": {
-		"electron": "v4.1.0"
+		"electron": "v4.1.0",
+		"electron-packager": "latest"
 	},
 	"chromium-args": "--password-store=basic",
 	"keywords": [
