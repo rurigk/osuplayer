@@ -13,7 +13,7 @@
 	},
 	"devDependencies": {
 		"electron": "v4.1.0",
-		"electron-packager": "latest"
+		"electron-packager": "^13.1.1"
 	},
 	"chromium-args": "--password-store=basic",
 	"keywords": [
